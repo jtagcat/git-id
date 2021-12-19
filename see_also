@@ -1,0 +1,6 @@
+https://github.com/artizirk/dotfiles/blob/master/.zshrc git env changes per dir
+
+(how can we add changing env to all git commands)
+replacing git bin would also be an option? (wrapper)
+
+it'd be neet if github hired me to implement this in to their cli thing
