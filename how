@@ -1,0 +1,3 @@
+[core]
+sshCommand = "ssh -F ~/.ssh/system-a/config"
+
