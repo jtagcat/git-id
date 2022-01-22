@@ -39,9 +39,11 @@ This enables default identities, and is currently the only supported setup.`,
 		}
 
 		// init managed files
-		for _, name := range []string{gitidConfig_name, gitidDefaultsConfig_name} {
-			if err := os.WriteFile(path.Join(sshConfig_parentdir, name), []byte(gitidHeaderInfo+"\n"), 0600); err != nil {
-				log.Error().Err(err).Msgf("Failed creating %q", name)
+		for _, o := range [][]string{
+			{gitidConfig_name, "Import \"" + baseConfig_name + "\"\n" + gitidHeaderInfo + "\n"},
+			{gitidDefaultsConfig_name, gitidHeaderInfo + "\n"}} {
+			if err := os.WriteFile(path.Join(sshConfig_parentdir, o[0]), []byte(o[1]), 0600); err != nil {
+				log.Error().Err(err).Msgf("Failed creating %q", o[0])
 			}
 		}
 		// import git-id.conf
