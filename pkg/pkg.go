@@ -18,10 +18,10 @@ func RenameNoOverwrite(oldpath, newpath string) error {
 	return err
 }
 
-// os.WriteFile, but fs.ErrExist
-func WriteFileExisting(name string, data []byte) error {
+// os.OpenFile, but fs.ErrNotExist
+func OpenFileExisting(name string, flag int) (*os.File, error) {
 	if _, err := os.Stat(name); err == nil {
-		return os.WriteFile(name, data, 0000)
+		return os.OpenFile(name, flag, 0000)
 	}
-	return fs.ErrExist
+	return nil, fs.ErrNotExist
 }

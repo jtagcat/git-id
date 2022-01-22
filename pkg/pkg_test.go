@@ -9,24 +9,54 @@ import (
 	"testing"
 )
 
-func TestRenameNoOverwrite(t *testing.T) {
+func TestRenameNoOverwrite_notexist(t *testing.T) {
+	td := t.TempDir()
+	src := path.Join(td, "from")
+	content := []byte("hello")
+	dst := path.Join(td, "to")
+
+	if err := os.WriteFile(src, content, 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := RenameNoOverwrite(src, dst); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := os.Stat(src); err == nil {
+		t.Fatal("src exists‽ it should be renamed to dstempty")
+	} else {
+		if !errors.Is(err, os.ErrNotExist) {
+			t.Fatal(err)
+		}
+	}
+
+	if read, err := ioutil.ReadFile(dst); err != nil {
+		t.Fatal(err)
+	} else {
+		if string(content) != string(read) {
+			t.Fatalf("dstempty: expected %q, got %q", content, read)
+		}
+	}
+}
+
+func TestRenameNoOverwrite_exist(t *testing.T) {
 	td := t.TempDir()
 	src := path.Join(td, "from")
 	src_content := []byte("hello")
-	dstexists := path.Join(td, "to")
-	dstexists_content := []byte("world")
-	dstempty := path.Join(td, "notexist")
+	dst := path.Join(td, "to")
+	dst_content := []byte("world")
 
 	if err := os.WriteFile(src, src_content, 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(dstexists, dstexists_content, 0600); err != nil {
+	if err := os.WriteFile(dst, dst_content, 0600); err != nil {
 		t.Fatal(err)
 	}
 
-	// 1st run, shall fail
-	if err := RenameNoOverwrite(src, dstexists); err == nil {
-		t.Fatal(err) // dst exists; should fail‽
+	// expected: err
+	if err := RenameNoOverwrite(src, dst); err == nil {
+		t.Fatal("dst exists; should return err‽")
 	} else {
 		if !errors.Is(err, fs.ErrExist) {
 			t.Fatal(err) // other error
@@ -40,32 +70,38 @@ func TestRenameNoOverwrite(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if read, err := ioutil.ReadFile(dstexists); err != nil {
+	if read, err := ioutil.ReadFile(dst); err != nil {
 		t.Fatal(err)
 	} else {
-		if string(dstexists_content) != string(read) {
-			t.Fatalf("existing dst got written to; expected %q, got %q", dstexists_content, read)
+		if string(dst_content) != string(read) {
+			t.Fatalf("existing dst got written to‽ expected %q, got %q", dst_content, read)
 		}
 	}
+}
 
-	// 2nd run, shall succeed
-	if err := RenameNoOverwrite(src, dstempty); err != nil {
+func TestOpenFileExisting_notexist(t *testing.T) {
+	tf := path.Join(t.TempDir(), "file")
+
+	// expected: err
+	f, err := OpenFileExisting(tf, os.O_RDONLY)
+	if err == nil {
+		t.Fatal("tf does not exist, should return err‽")
+	}
+	if !errors.Is(err, fs.ErrNotExist) {
+		t.Fatal(err)
+	}
+	defer f.Close()
+}
+
+func TestOpenFileExisting_exist(t *testing.T) {
+	tf := path.Join(t.TempDir(), "file")
+	if err := os.WriteFile(tf, []byte(""), 0600); err != nil {
 		t.Fatal(err)
 	}
 
-	if _, err := os.Stat(src); err == nil {
-		t.Fatal("src exists‽ it should be renamed to dstempty")
-	} else {
-		if !errors.Is(err, os.ErrNotExist) {
-			t.Fatal(err)
-		}
-	}
-
-	if read, err := ioutil.ReadFile(dstempty); err != nil {
+	f, err := OpenFileExisting(tf, os.O_RDONLY)
+	if err != nil {
 		t.Fatal(err)
-	} else {
-		if string(src_content) != string(read) {
-			t.Fatalf("dstempty: expected %q, got %q", src_content, read)
-		}
 	}
+	defer f.Close()
 }
