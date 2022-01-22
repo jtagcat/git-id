@@ -33,7 +33,7 @@ Git ─────────────────► SSH         ┌─►
 ```
 ```ascii
     PUSH work.gh.git-id
-Git ───────────────────► SSH  ┌─► ~/.ssh/work_sk SSH github.com 
+Git ───────────────────► SSH  ┌──────► ~/.ssh/work_sk SSH github.com 
  irlname                  │   │
  irl@work.biz             ▼   │
                   ~/.ssh/git-id.conf                                                  Created with
