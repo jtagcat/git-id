@@ -2,19 +2,23 @@
 Portable and independant dumb git identity management.
 
 ## todo
-1. how to seperate ssh configs
+1. Init / seperate configs
   ```sh
   mv ~/.ssh/config ~/.ssh/global_config
-  echo 'Include global_base.conf' | tee ~/.ssh/config && chmod 600 ~/.ssh/config # can also be 644
+  echo 'Include global_base.conf' | tee ~/.ssh/config
+  chmod 600 ~/.ssh/config # can also be 644
 
-  printf '\nHost github.com # default\n  IdentityFile ~/.ssh/gh_rsa' # keep in mind, that this may be uesd by random stuff on your system; system might behave weirdly if this can't be used noninteractively
-
-  printf '\n\nHost *.gh\n  HostName github.com\n  IdentitiesOnly yes\n' | tee -a ~/.ssh/git_alts.conf
-
-  chmod 600 ~/.ssh/git_alts.conf
-  sed -i '1iInclude git_alts.conf' ~/.ssh/global_config
+  install -m 600 /dev/null ~/.ssh/git-id.conf
+  sed -i '1iInclude git-id.conf' ~/.ssh/global_config
   ```
 1. addhost / addorigin / addremote
+  ```sh
+  printf '\nHost github.com # default\n  IdentityFile ~/.ssh/gh_rsa'
+  # this may be uesd by random stuff on your system,
+  # system might behave weirdly if this can't be used noninteractively
+
+  printf '\n\nHost *.gh\n  HostName github.com\n  IdentitiesOnly yes\n' | tee -a ~/.ssh/git_alts.conf
+  ```
 1. addid cmd
   ```sh
   #TODO: a) use foo.gh.git-id   identifyiable, maybe more machine-manipulative
