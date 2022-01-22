@@ -105,3 +105,26 @@ func TestOpenFileExisting_exist(t *testing.T) {
 	}
 	defer f.Close()
 }
+
+func TestFileAppend(t *testing.T) {
+	tf := path.Join(t.TempDir(), "file")
+	content1 := []byte("hello")
+	content2 := []byte("world")
+
+	if err := os.WriteFile(tf, content1, 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := FileAppend(tf, content2); err != nil {
+		t.Fatal(err)
+	}
+
+	if read, err := ioutil.ReadFile(tf); err != nil {
+		t.Fatal(err)
+	} else {
+		want := string(content1) + string(content2)
+		if want != string(read) {
+			t.Fatalf("expected %q, got %q", want, read)
+		}
+	}
+}
