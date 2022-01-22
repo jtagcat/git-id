@@ -17,10 +17,10 @@ func TestRenameNoOverwrite(t *testing.T) {
 	dstexists_content := []byte("world")
 	dstempty := path.Join(td, "notexist")
 
-	if err := ioutil.WriteFile(src, src_content, 0600); err != nil {
+	if err := os.WriteFile(src, src_content, 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := ioutil.WriteFile(dstexists, dstexists_content, 0600); err != nil {
+	if err := os.WriteFile(dstexists, dstexists_content, 0600); err != nil {
 		t.Fatal(err)
 	}
 
