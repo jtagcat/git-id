@@ -1,55 +1,21 @@
-# git-id
-Portable and independant dumb git identity management.
+# [git-id](https://github.com/jtagcat/git-id)
+Portable dumb git identity management.
 
-## todo
-1. Init / seperate configs
-  ```sh
-  mv ~/.ssh/config ~/.ssh/global_config
-  echo 'Include global_base.conf' | tee ~/.ssh/config
-  chmod 600 ~/.ssh/config # can also be 644
+NON-FUNCTIONAL, under development.
 
-  install -m 600 /dev/null ~/.ssh/git-id.conf
-  sed -i '1iInclude git-id.conf' ~/.ssh/global_config
-  ```
-1. addhost / addorigin / addremote
-  ```sh
-  printf '\nHost github.com # default\n  IdentityFile ~/.ssh/gh_rsa'
-  # this may be uesd by random stuff on your system,
-  # system might behave weirdly if this can't be used noninteractively
+```sh
+$ git id init # ~/.ssh/config → ~/.ssh/base.conf
+              # + touch ~/.ssh/git-id{,_default}.conf
+              # Import git-id{,_default}.conf
+$ git id origin add gh github.com
+$ git id add gh default ~/.ssh/id_rsa --username jtagcat --email 'user@domain.tld'
+$ git id add gh work ~/.ssh/workyubi_sk --username irlname --email 'irl@work.biz' --description 'Evilcorp'
 
-  printf '\n\nHost *.gh\n  HostName github.com\n  IdentitiesOnly yes\n' | tee -a ~/.ssh/git_alts.conf
-  ```
-1. addid cmd
-  ```sh
-  #TODO: a) use foo.gh.git-id   identifyiable, maybe more machine-manipulative
-  #      b) use foo.github.com  maybe benefits? *.github.com? anything else?
-  #      c) use foo.gh          shorter
-  printf 'Host foo.gh.git-id # foobar\n  IdentityFile ~/.ssh/foobar_sk\n' | tee ~/.ssh/git_alts.conf
-  ```
-  - git username, email, core.sshCommand
-1. removeid cmd
-  - ssh config fallback? default to no fallback/alias
-1. nonmvp: editid
-1. changeid cmd
-  - this is used in repos
-  - can we use (default:no) fallback secondary ssh config (default)?
-    - will it be used include-style or fallback-style
-    - can we use ssh_config things to print something / execute git-id hidden command
-  - keep track of where it is used? can we query this later (for editing identifier, username, email, bla, keeping things working)
-1. clone with id cmd
-1. anything else clone-like?
-## Commands
-### git id [profile] [directory]
- - `profile`: profile slug to switch to; defaults to no config (user's default without `git-id`)
- - `directory` - repo dir on what to set the identiy on; defaults to `./`
+$ git id clone work git@github.com:evilcorp/private_repo.git # clone using id:work
+$ cd private_repo
+$ git id default # switch from id:work to id:default
+$ git push
+ERROR: Permission to evilcorp/private_repo.git denied to jtagcat.
+```
 
-## Configuration store
-| Item | Default | Example | Description |
-| --- | --- | --- | --- |
-| `$GIT_ID_CONFIG` | `~/.config/git-id` |     |     |
-| `/id/` |     | `/id/foo/` | Profiles |
-| `/id/$slug/ssh` |     | (`~/.ssh/config`) | sshconfig used with the identity |
-| #TODO: |     |     | default values for core `git-id` operation |
-| `/id/$slug/git` |     | (`~/.gitconfig`) | gitconfig used with the identity |
-| `/config` |     | (yaml) | Configuration for `git-id` |
-| `/config`:`sshConfig`\[^conf\_sshConfig\_global\] | Import from global git config, `ssh` | `/tmp/ssh -vvv` | `git-id` will append `-F ~/$GIT_ID_CONFIG/id/$slug/config` |
+TODO: instructions for zsh/othershell automatic `alias "git clone"="git id clone <id>"` (can be done with func: case: "$@")
