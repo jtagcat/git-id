@@ -36,9 +36,10 @@ Git ─────────────────► SSH         ┌─►
 Git ───────────────────► SSH  ┌─► ~/.ssh/work_sk SSH github.com 
  irlname                  │   │
  irl@work.biz             ▼   │
-                  ~/.ssh/git-id.conf
-                + ~/.ssh/base.conf
+                  ~/.ssh/git-id.conf                                                  Created with
+                + ~/.ssh/base.conf                             https://github.com/lewish/asciiflow
 ```
+
 Defaults shall reside in a different file, otherwise will also read the default identity after resolving `work.gh.git-id`, **sometimes** using the default identity. The behaviour is dependant on alphabetic order and SSH version specifics.  
 I can't work with that, I can't hand it to interns. I did not find any easy or working way to do this, yet the issue is asked about, searched, worked around of.
 
