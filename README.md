@@ -42,7 +42,7 @@ Git ───────────────────► SSH  ┌─► 
 Defaults shall reside in a different file, otherwise will also read the default identity after resolving `work.gh.git-id`, **sometimes** using the default identity. The behaviour is dependant on alphabetic order and SSH version specifics.  
 I can't work with that, I can't hand it to interns. I did not find any easy or working way to do this, yet the issue is asked about, searched, worked around of.
 
-So, `git-id` is here to implement a workaround without dependencies, something simple to use, something that just works when you need to push a commit from your work, other work, or h4ck3r account, to the same remote host.
+So, `git-id` is here to implement basic git identity management without dependencies: something simple to use, something that just works when you need to push a commit from your work, other work, or h4ck3r account, to the same remote host.
 
 The reliable™ hijack depends on `ssh_config`, and 2 git configurations:
  - The domain/host inside the git remote url is changed to a pseudohost (later picked up by `ssh_config`). This is essentially a coded message to SSH for 'please use this identity'
