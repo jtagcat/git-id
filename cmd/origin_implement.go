@@ -4,25 +4,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// git id origin
-var originCmd = &cobra.Command{
-	Use:   "origin",
-	Short: "Manage origins",
+// git id remote
+var remoteCmd = &cobra.Command{
+	Use:   "remote",
+	Short: "Manage remotes",
 }
 
 func init() {
-	rootCmd.AddCommand(originCmd)
-	originCmd.AddCommand(addOriginCmd)
-	originCmd.AddCommand(rmOriginCmd)
+	rootCmd.AddCommand(remoteCmd)
+	remoteCmd.AddCommand(addRemoteCmd)
+	remoteCmd.AddCommand(rmRemoteCmd)
 }
 
-// git id origin add
-var addOriginCmd = &cobra.Command{
+// git id remote add
+var addRemoteCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add an origin",
+	Short: "Add an remote",
 	Long: `NOT IMPLEMENTED
 	
-	Usage: git-id origin add <origin slug> <actual host>`,
+	Usage: git-id remote add <remote slug> <actual host>`,
 	// log.Info().Msg( it is reccommened to add a default identity bla
 	// "this may be uesd by random stuff on your system,
 	// system might behave weirdly if this can't be used noninteractively"
@@ -35,20 +35,20 @@ var addOriginCmd = &cobra.Command{
 //NOTE: system might behave weirdly if this can't be used noninteractively
 
 // ~/.ssh/git-id.conf:
-//Host <origin slug>
+//Host <remote slug>
 //  HostName github.com
 //  IdentitiesOnly yes
 
-// git id origin rm: NOMVP
-var rmOriginCmd = &cobra.Command{
+// git id remote rm: NOMVP
+var rmRemoteCmd = &cobra.Command{
 	Use:   "rm",
-	Short: "Remove an origin",
+	Short: "Remove an remote",
 	Long:  `NOT IMPLEMENTED`,
 	// ssh config fallback: alias deleted to just domain
 }
 
-// git id origin set: NOVMP
+// git id remote set: NOVMP
 // username
 // email
 
-// git id origin rename: VERY NOMVP
+// git id remote rename: VERY NOMVP

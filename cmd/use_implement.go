@@ -13,12 +13,12 @@ var useCmd = &cobra.Command{
 	Usage: git-id use <id slug>`,
 }
 
-// (not shared with clone): change origin url
+// (not shared with clone): change remote url
 // git username, email, core.sshCommand
 // git config core.sshCommand = "ssh -F ~/.ssh/git-id.conf"
 // track what is used where how:
 //  - date
-//  - git-id user-facing id and origin slugs
+//  - git-id user-facing id and remote slugs
 //  - actual username, email, config used (config loc + full core.sshCommand)
 //  - actual host used (foo.gh.git-id)
 

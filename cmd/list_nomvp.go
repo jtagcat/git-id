@@ -16,7 +16,7 @@ var listCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.AddCommand(listIdCmd)
-	listCmd.AddCommand(listOriginCmd)
+	listCmd.AddCommand(listRemoteCmd)
 }
 
 var listIdCmd = &cobra.Command{
@@ -28,8 +28,8 @@ var listIdCmd = &cobra.Command{
 	List repos using ID: git-id list id <id slug>`,
 }
 
-var listOriginCmd = &cobra.Command{
-	Use:   "origin",
-	Short: "List origins",
+var listRemoteCmd = &cobra.Command{
+	Use:   "remote",
+	Short: "List remotes",
 	Long:  `NOT IMPLEMENTED`,
 }

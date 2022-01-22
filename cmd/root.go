@@ -9,7 +9,7 @@ import (
 
 var (
 	gitidHeaderInfo       = "# This file is managed by git-id"
-	gitidHeaderOrigins    = "\n# Origins"
+	gitidHeaderRemotes    = "\n# Remotes"
 	gitidHeaderIdentities = "\n# Identities"
 )
 
@@ -38,5 +38,5 @@ func init() {
 }
 
 // NOTMVP: custom core.sshCommand additions
-// very NOMVP: allow hiding/deprecating an id/origin instead of rm
+// very NOMVP: allow hiding/deprecating an id/remote instead of rm
 // TODO: rm/change/deprecate: can we use ssh_config things to print something / execute git-id hidden command?

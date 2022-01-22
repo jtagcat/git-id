@@ -13,7 +13,7 @@ var addCmd = &cobra.Command{
 	
 	'default' is a special id.
 
-	Usage: git-id add <origin slug> <id slug>
+	Usage: git-id add <remote slug> <id slug>
 	Example: git-id add gh foo ~/.ssh/foo_sk --username foobar --email 'user@domain.tld' --description 'only used by git-id, for refreshing memory`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Panic().Msg("command not implemented")
