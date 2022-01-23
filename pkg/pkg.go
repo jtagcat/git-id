@@ -39,3 +39,15 @@ func FileAppend(name string, b []byte) error {
 	_, err = f.Write(b)
 	return err
 }
+
+// returns path, or $PWD if path empty
+func PWDIfEmpty(path string) (string, error) {
+	if path != "" {
+		return path, nil
+	}
+	wd, err := os.Getwd()
+	if err == nil {
+		return wd, nil
+	}
+	return "", errors.New("path unset, failed getting working directory: " + err.Error())
+}
