@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -15,9 +14,6 @@ var addCmd = &cobra.Command{
 
 	Usage: git-id add <remote slug> <id slug>
 	Example: git-id add gh foo ~/.ssh/foo_sk --username foobar --email 'user@domain.tld' --description 'only used by git-id, for refreshing memory`,
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Panic().Msg("command not implemented")
-	},
 }
 
 func init() {
@@ -34,3 +30,7 @@ func init() {
 
 //TODO: establish a config file for username + email + desc
 //  can do this inside git-id.conf, git-id_default.conf! commented out yaml/json? addition to objects?
+
+//IMPORTANT: NOMVP:
+// - username-email should be seperate / child objects we fetch / they are referenced by identities
+// - multiple remotes, multiple identities
