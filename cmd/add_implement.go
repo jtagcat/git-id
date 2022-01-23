@@ -12,17 +12,26 @@ var addCmd = &cobra.Command{
 	
 	'default' is a special id.
 
-	Usage: git-id add <remote slug> <id slug>
-	Example: git-id add gh foo ~/.ssh/foo_sk --username foobar --email 'user@domain.tld' --description 'only used by git-id, for refreshing memory`,
+	Usage: git-id add <remote slug> <id slug> [ssh key]
+	Example: git-id add gh foo ~/.ssh/foo_sk -u foobar -e 'user@domain.tld' -d 'only used by git-id, for refreshing memory`,
 }
+
+var (
+	flUsername    string
+	flEmail       string
+	flSigningKey  string
+	flDescription string
+)
 
 func init() {
 	rootCmd.AddCommand(addCmd)
+	useCmd.LocalFlags().StringVarP(&flUsername, "username", "-u", "", "git user.name")
+	useCmd.LocalFlags().StringVarP(&flEmail, "email", "-e", "", "git user.email")
+	useCmd.LocalFlags().StringVarP(&flSigningKey, "sigkey", "-s", "", "git user.signingKey")
+	useCmd.LocalFlags().StringVarP(&flDescription, "description", "-d", "", "git-id-only, memory refresher")
 }
 
-// TODO: a) use foo.gh.git-id   identifyiable, maybe more machine-manipulative
-//       b) use foo.github.com  maybe benefits? *.github.com? anything else?
-//       c) use foo.gh          shorter
+// using foo.gh.git-id
 
 // git-id.conf:
 //Host foo.gh.git-id # foobar

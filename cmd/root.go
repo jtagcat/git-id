@@ -12,6 +12,7 @@ var (
 	gitidHeaderInfo       = "# This file is managed by git-id"
 	gitidHeaderRemotes    = "\n# Remotes"
 	gitidHeaderIdentities = "\n# Identities"
+	gitidTLD              = ".git-id" // foo.gh.git-id
 )
 
 // rootCmd is the base command, 'git id'
