@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/gogs/git-module"
 	"github.com/jtagcat/git-id/pkg"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -19,6 +20,12 @@ var useCmd = &cobra.Command{
 			log.Fatal().Err(err).Msg("")
 		}
 		log.Trace().Str("git_working_directory", path).Msg("")
+
+		r, err := git.Open(path)
+		if err != nil {
+			log.Fatal().Err(err).Msg("")
+		}
+		log.Debug().Str("path", path).Msg("repo opened")
 
 		// if err != nil {
 		// 	log.Fatal().Err(err)
