@@ -24,6 +24,7 @@ Configuration is only applied — after setup, git-id is not needed.
 	Run: func(cmd *cobra.Command, args []string) {
 		statusCmd.Run(cmd, args)
 	},
+    //NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
 }
 
 func Execute() {
