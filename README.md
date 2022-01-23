@@ -1,5 +1,5 @@
 # [`git-id`](https://github.com/jtagcat/git-id)
-Portable dumb git identity management.
+Portable dumb identity management for Git, the [stupid content tracker](https://git-scm.com/docs/git#_name).
 
 NON-FUNCTIONAL, under development.
 

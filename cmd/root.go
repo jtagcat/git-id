@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/jtagcat/git-id/pkg"
+	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
@@ -16,26 +17,33 @@ var (
 // rootCmd is the base command, 'git id'
 var rootCmd = &cobra.Command{
 	Use:   "git-id",
-	Short: "Dumb git identity management",
+	Short: "Dumb Git identity management",
 	Long: `git-id speeds up setting up and managing multiple identities with git.
-Configuration is only applied — after setup, git-id is not needed.
-
-	'git-id' aliases to 'git-id status'`,
-	Run: func(cmd *cobra.Command, args []string) {
-		statusCmd.Run(cmd, args)
-	},
-    //NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
+Configuration is only applied — after setup, git-id is not needed.`,
+	// 'git-id' aliases to 'git-id status'`,
+	//	Run: func(cmd *cobra.Command, args []string) {
+	//		statusCmd.Run(cmd, args)
+	//	},
+	//NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
 }
 
 func Execute() {
+	//TODO: DEV
+	zerolog.SetGlobalLevel(zerolog.TraceLevel)
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
 }
 
+var (
+	flPath string
+)
+
 func init() {
 	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) //TODO: parse -vvv and --verbose=5 / --verbose=info
+
+	rootCmd.PersistentFlags().StringVarP(&flPath, "", "C", "", "Act on path instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
 }
 
 // NOTMVP: custom core.sshCommand additions
