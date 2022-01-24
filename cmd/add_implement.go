@@ -25,10 +25,10 @@ var (
 
 func init() {
 	rootCmd.AddCommand(addCmd)
-	useCmd.LocalFlags().StringVarP(&flUsername, "username", "-u", "", "git user.name")
-	useCmd.LocalFlags().StringVarP(&flEmail, "email", "-e", "", "git user.email")
-	useCmd.LocalFlags().StringVarP(&flSigningKey, "sigkey", "-s", "", "git user.signingKey")
-	useCmd.LocalFlags().StringVarP(&flDescription, "description", "-d", "", "git-id-only, memory refresher")
+	useCmd.LocalFlags().StringVarP(&flUsername, "username", "u", "", "git user.name")
+	useCmd.LocalFlags().StringVarP(&flEmail, "email", "e", "", "git user.email")
+	useCmd.LocalFlags().StringVarP(&flSigningKey, "sigkey", "s", "", "git user.signingKey")
+	useCmd.LocalFlags().StringVarP(&flDescription, "description", "d", "", "git-id-only, memory refresher")
 }
 
 // using foo.gh.git-id
