@@ -55,12 +55,9 @@ func parseLine(data string) (rawObject, error) {
 //
 // inspired by https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889 and strings.FieldsFunc()
 func unescapeValue(s string) (values []string, comment string, err error) {
-	strings, currentString, skipnext, quoted := []string{}, "", 0, 0
+	strings, currentString, quoted := []string{}, "", 0
+runereader:
 	for pos, rune := range s {
-		if skipnext > 0 {
-			skipnext -= 1
-			continue
-		}
 		if rune == '\\' { // single backslash
 			switch string(s[pos+1]) {
 			case "'":
@@ -73,7 +70,7 @@ func unescapeValue(s string) (values []string, comment string, err error) {
 				currentString += "\\\\" // 2 backslashes
 				continue
 			}
-			skipnext += 1 // escapes are parsed in sets, next char already got parsed and added to currentString
+			pos += 1 // skip next rune
 			continue
 		}
 
@@ -115,7 +112,7 @@ func unescapeValue(s string) (values []string, comment string, err error) {
 			}
 			if rune == '#' {
 				comment = s[pos+1:]
-				break
+				break runereader
 			}
 		}
 		currentString += string(rune)
