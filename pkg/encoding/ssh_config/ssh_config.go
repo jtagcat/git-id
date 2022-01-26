@@ -26,6 +26,8 @@ var (
 type rawObject Keyword
 
 // returned Keyword might be a raw TLD object
+//
+// possible errors: nil, errInvalidQuoting
 func parseLine(data string) (rawObject, error) {
 	trimmedLine := strings.TrimSpace(data)
 	if strings.HasPrefix(trimmedLine, "#") {
@@ -35,27 +37,20 @@ func parseLine(data string) (rawObject, error) {
 	kvSeperatorPos := strings.IndexAny(trimmedLine, " =")
 	key := trimmedLine[:kvSeperatorPos]
 	valuesblob := trimmedLine[kvSeperatorPos+1:]
-	_, _, err := unescapeValue(valuesblob) //TODO
-	if err != nil {
-		return rawObject{}, fmt.Errorf("%q: %w", data, err)
+
+	values, comment, err := decodeValue(valuesblob) //TODO
+	if err == errInvalidQuoting {
+		err = fmt.Errorf("%q: %w", data, err)
 	}
-
-	return rawObject{Key: key}, nil //TODO::::::
-
-	// valuetype, keyInIndex := keywordIndex[key]
-	// if !keyInIndex {
-	// 	return rawObject{Key: key, Values: }, errInvalidKeyword
-	// }
-
-	// strings.FieldsFunc(data)
-	// strings.SplitN(data, " ")
+	return rawObject{key, values, comment, string(trimmedLine[kvSeperatorPos]) == "="}, err
 }
 
-// unescapes an ssh_config valuepart
+// decodes an ssh_config valuepart
 //
-// inspired by https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889 and strings.FieldsFunc()
-func unescapeValue(s string) (values []string, comment string, err error) {
-	strings, currentString, quoted := []string{}, "", 0
+// possible errors: nil, errInvalidQuoting
+func decodeValue(s string) (values []Value, comment string, err error) {
+	// func inspired by https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889 and strings.FieldsFunc()
+	strings, currentString, quoted := []Value{}, "", 0
 runereader:
 	for pos, rune := range s {
 		if rune == '\\' { // single backslash
@@ -80,7 +75,7 @@ runereader:
 		case 1: // single quoted
 			if rune == '\'' {
 				quoted = 0 // macro a
-				strings = append(strings, currentString)
+				strings = append(strings, Value{currentString, 1, ""})
 				currentString = ""
 				// spaces between are handled below
 				continue
@@ -88,7 +83,7 @@ runereader:
 		case 2: // double quoted
 			if rune == '"' {
 				quoted = 0 // duplicate codeblock a
-				strings = append(strings, currentString)
+				strings = append(strings, Value{currentString, 2, ""})
 				currentString = ""
 				// spaces between are handled below
 				continue
@@ -106,7 +101,7 @@ runereader:
 				if len(currentString) == 0 {
 					continue
 				}
-				strings = append(strings, currentString)
+				strings = append(strings, Value{currentString, 0, ""})
 				currentString = ""
 				continue
 			}
@@ -118,9 +113,14 @@ runereader:
 		currentString += string(rune)
 	}
 	if quoted != 0 {
-		return nil, "", fmt.Errorf("unescapeValues: %q: %w", currentString, errInvalidQuoting)
+		err = fmt.Errorf("unescapeValues: %q: %w", currentString, errInvalidQuoting)
 	}
-	return append(strings, currentString), comment, nil
+	return append(strings, Value{currentString, 0, ""}), comment, err
+}
+
+func encodeValue(values []Value, comment string) (string, error) {
+
+	return "", nil //TODO:
 }
 
 // encoding: indentchar

@@ -11,28 +11,28 @@ func TestDecode(t *testing.T) {
 	// err := Decode(a)
 }
 
-func TestUnescapeValue(t *testing.T) {
+func TestDecodeValue(t *testing.T) {
 	type out struct {
-		values  []string
+		values  []Value
 		comment string
 		err     error
 	}
 	inputs := map[string]out{
 		"Inv\"alid":       {nil, "", errInvalidQuoting},
 		"Inv'alid":        {nil, "", errInvalidQuoting},
-		"\"Valid\"":       {[]string{"Valid"}, "", nil},
-		"\"V'alid\"":      {[]string{"V'alid"}, "", nil},
-		"String1 String2": {[]string{"String1", "String2"}, "", nil},
-		"\"st1\"'s\\t2'":  {[]string{"st1", "s\\t2"}, "", nil},
-		"\\":              {[]string{"\\\\"}, "", nil},
-		"hello # comment": {[]string{"hello"}, " comment", nil},
-		"close#relations": {[]string{"close"}, "relations", nil},
+		"\"Valid\"":       {[]Value{{"Valid", 2, ""}}, "", nil},
+		"\"V'alid\"":      {[]Value{{"V'alid", 2, ""}}, "", nil},
+		"String1 String2": {[]Value{{"String1", 0, ""}, {"String2", 0, ""}}, "", nil},
+		"\"st1\"'s\\t2'":  {[]Value{{"st1", 2, ""}, {"s\\t2", 1, ""}}, "", nil},
+		"\\":              {[]Value{{"\\\\", 0, ""}}, "", nil},
+		"hello # comment": {[]Value{{"hello", 0, ""}}, " comment", nil},
+		"close#relations": {[]Value{{"close", 0, ""}}, "relations", nil},
 		"#amcomment":      {nil, "amcomment", nil},
 		//TODO:
 	}
 	for input, want := range inputs {
 		go func(input string, want out) {
-			values, comments, err := unescapeValue(input)
+			values, comments, err := decodeValue(input)
 			assert.ErrorIs(t, err, want.err)
 			assert.Equal(t, want.values, values)
 			assert.Equal(t, want.comment, comments)

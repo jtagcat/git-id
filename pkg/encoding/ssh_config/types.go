@@ -22,8 +22,11 @@ type Keyword struct {
 	EncodingKVSeperatorIsEquals bool // "Key=Value" instead of "Key Value"
 }
 type Value struct {
-	Value    string
-	isQuoted bool // UNDOCUMENTED UPSTREAM: escapes
+	Value     string
+	Quoted    int    // enum: 0: not, 1: single, 2: double
+	ValueType string // enum TBD TODO:
+
+	// UNDOCUMENTED UPSTREAM: escapes
 	// https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889: Copy the token in, removing escapes
 	// both single and double quotes are allowed
 	// \ → \\; \\ → \\; \\\ → \\\\ (2 sets)
