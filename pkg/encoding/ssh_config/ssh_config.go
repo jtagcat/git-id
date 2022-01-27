@@ -187,3 +187,5 @@ func encodeValue(values []Value, comment string) (encoded string, err error) {
 // encoding: indentchar
 
 //func typeCheck()
+
+// func: validate written config at runtime
