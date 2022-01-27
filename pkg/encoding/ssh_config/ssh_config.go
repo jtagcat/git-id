@@ -19,8 +19,9 @@ import (
 // }
 
 var (
-	errInvalidKeyword = errors.New("invalid keyword")
-	errInvalidQuoting = errors.New("bad quoting") // TODO: add more info?
+	errInvalidKeyword                 = errors.New("invalid keyword")
+	errInvalidQuoting                 = errors.New("bad quoting") // TODO: add more info?
+	errWarnSingleBackslashTransformed = errors.New("1 or more single backslashes changed to 2 backslashes since OpenSSH ssh_config does this (this always happens: st\\ring → st\\\\ring)")
 )
 
 type rawObject Keyword
@@ -42,10 +43,14 @@ func parseLine(data string) (rawObject, error) {
 	if err == errInvalidQuoting {
 		err = fmt.Errorf("%q: %w", data, err)
 	}
+
+	// TODO: typecheck:
+
 	return rawObject{key, values, comment, string(trimmedLine[kvSeperatorPos]) == "="}, err
 }
 
 // decodes an ssh_config valuepart
+// does not know of types
 //
 // possible errors: nil, errInvalidQuoting
 func decodeValue(s string) (values []Value, comment string, err error) {
@@ -118,9 +123,67 @@ runereader:
 	return append(strings, Value{currentString, 0, ""}), comment, err
 }
 
-func encodeValue(values []Value, comment string) (string, error) {
+// encodes an ssh_config valuepart
+// if string begins or ends with space, it is automatically quoted without warning
+//
+// does not perform type checking
+//
+// possible errors: nil, errWarnSingleBackslashTransformed
+func encodeValue(values []Value, comment string) (encoded string, err error) {
+	for i, v := range values {
+		if i != 0 {
+			encoded += " " // not required, but spaces between arguments is nice
+		}
 
-	return "", nil //TODO:
+		if v.Quoted == 0 {
+			if strings.HasPrefix(v.Value, " ") || strings.HasSuffix(v.Value, " ") {
+				v.Quoted = 1
+			}
+		}
+
+		switch v.Quoted { // macro: quote
+		case 1:
+			encoded += "'"
+		case 2:
+			encoded += "\""
+		}
+
+		for pos, rune := range v.Value {
+			if rune == '\\' { // single backslash
+				switch string(v.Value[pos+1]) {
+				case "'":
+					if v.Quoted != 2 { // 2: already escaped by quotes
+						encoded += "\\'" //: \'
+					}
+				case "\"":
+					if v.Quoted != 1 {
+						encoded += "\\\"" //: \"
+					}
+				case "\\":
+					encoded += "\\\\"
+				default:
+					encoded += "\\\\" // 1 backslash gets turned to 2 when read by OpenSSH
+					err = errWarnSingleBackslashTransformed
+					continue
+				}
+				pos += 1
+				continue
+			}
+		}
+
+		switch v.Quoted { // macro: quote
+		case 1:
+			encoded += "'"
+		case 2:
+			encoded += "\""
+		}
+	}
+	if comment != "" {
+		comment = " #" + comment
+	}
+	return encoded + comment, err
 }
 
 // encoding: indentchar
+
+//func typeCheck()
