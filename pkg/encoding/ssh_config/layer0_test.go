@@ -6,27 +6,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDecode(t *testing.T) {
-	// a := strings.NewReader("test\nkest")
-	// err := Decode(a)
-}
-
 func TestDecodeValue(t *testing.T) {
 	type out struct {
-		values  []Value
+		values  []RawValue
 		comment string
 		err     error
 	}
 	inputs := map[string]out{
 		"Inv\"alid":       {nil, "", errInvalidQuoting},
 		"Inv'alid":        {nil, "", errInvalidQuoting},
-		"\"Valid\"":       {[]Value{{"Valid", 2, ""}}, "", nil},
-		"\"V'alid\"":      {[]Value{{"V'alid", 2, ""}}, "", nil},
-		"String1 String2": {[]Value{{"String1", 0, ""}, {"String2", 0, ""}}, "", nil},
-		"\"st1\"'s\\t2'":  {[]Value{{"st1", 2, ""}, {"s\\t2", 1, ""}}, "", nil},
-		"\\":              {[]Value{{"\\\\", 0, ""}}, "", nil},
-		"hello # comment": {[]Value{{"hello", 0, ""}}, " comment", nil},
-		"close#relations": {[]Value{{"close", 0, ""}}, "relations", nil},
+		"\"Valid\"":       {[]RawValue{{"Valid", 2}}, "", nil},
+		"\"V'alid\"":      {[]RawValue{{"V'alid", 2}}, "", nil},
+		"String1 String2": {[]RawValue{{"String1", 0}, {"String2", 0}}, "", nil},
+		"\"st1\"'s\\t2'":  {[]RawValue{{"st1", 2}, {"s\\t2", 1}}, "", nil},
+		"\\":              {[]RawValue{{"\\\\", 0}}, "", nil},
+		"hello # comment": {[]RawValue{{"hello", 0}}, " comment", nil},
+		"close#relations": {[]RawValue{{"close", 0}}, "relations", nil},
 		"#amcomment":      {nil, "amcomment", nil},
 		//TODO:
 	}

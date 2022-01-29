@@ -1,7 +1,12 @@
 # [`git-id`](https://github.com/jtagcat/git-id)
 Portable dumb identity management for Git, the [stupid content tracker](https://git-scm.com/docs/git#_name).
 
-NON-FUNCTIONAL, under development.
+
+## Project status
+Totally non-functional. I went on a tangent on implementing a library to interact with ssh_config, wanting to make it beautiful. ssh_config is really, quite ugly. 
+
+***
+
 
 ```sh
 $ git id init # ~/.ssh/config → ~/.ssh/base.conf
