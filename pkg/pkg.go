@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"strings"
 )
 
 // os.Rename(), but newpath:fs.ErrExist
@@ -50,4 +51,16 @@ func PWDIfEmpty(path string) (string, error) {
 		return wd, nil
 	}
 	return "", errors.New("path unset, failed getting working directory: " + err.Error())
+}
+
+func EqualFoldSlice(s []string, t []string) bool {
+	if len(s) != len(t) {
+		return false
+	}
+	for i := range s {
+		if !strings.EqualFold(s[i], t[i]) {
+			return false
+		}
+	}
+	return true
 }
