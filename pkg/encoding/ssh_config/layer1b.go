@@ -50,6 +50,9 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 
 			// basic 'does key exist'
 			var exists bool
+			if rkw.Key == "" {
+				exists = true // comment line
+			}
 			for i := 0; i < keywordsTotal; i++ {
 				if keywordType.Field(i).Name == rkw.Key {
 					exists = true
