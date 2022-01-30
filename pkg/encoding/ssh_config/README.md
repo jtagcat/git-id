@@ -1,6 +1,10 @@
 # ssh_config
+Library for decoding/encoding OpenBSD OpenSSH ssh_config files.
+
+Designed so decode's input is the same as same content's encode output. This means that you can change a value in a config file while keeping comments and newlines.
 
 ## Behaviour to look out for
+However, there are many catches:
 ### Backslash transformations
 upstream: ErrWarnSingleBackslashTransformed:
 
@@ -43,6 +47,9 @@ Comments in ssh_config are defined as empty lines or space after an unquoted `#`
  - `# hello` in ssh_config is under `*.Comment` as ` hello` (mind the space)
  - `Hostname foo #`, ` #` will be trimmed, while `Hostname foo # ` Comment = ` `
    - `#\n` will be trimmed to `\n`.
+
+### Indenting
+Encoding: Indenting is currently soft-coded to 2 spaces. Indentation is used for sub-objects.
 
 ## Status
 tl;dr: pivoting, no typing support planned.

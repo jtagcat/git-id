@@ -1,7 +1,6 @@
 package ssh_config
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -35,6 +34,18 @@ func GetBetweenHeaders(cfg []RawTopLevel, header, eofHeader string) (beforeHeade
 	return beforeHeader, betweenHeaders, afterHeader
 }
 
+func DecodeXKeys(cfg []RawTopLevel, xkeyPrefix string) []RawTopLevel {
+
+}
+
+func EncodeXKeys(cfg []RawTopLevel, xkeyPrefix string) []RawTopLevel {
+
+}
+
+//
+
+//
+
 // func TLDofKV(cfg []RawTopLevel, subkeyIsComment bool, subkey string, subvalues []string) {
 // 	for _, line := range cfg {
 // 		for _, kv := range line.Children {
@@ -46,23 +57,23 @@ func GetBetweenHeaders(cfg []RawTopLevel, header, eofHeader string) (beforeHeade
 // key enum: Host, Match, Include
 // key-value likely part of RawTopLevel
 // search is 2nd side of equals
-func tldMatch(key string, value []RawValue, search string) (bool, error) {
-	switch key {
-	default:
-		return false, fmt.Errorf("%w: TLD %s", ErrInvalidKeyword, key)
-	case "Include":
-		return false, nil
-	case "Match":
-		return false, fmt.Errorf("%w: TLD %s", ErrNotImplemented, key)
-	case "Host":
-		for _, v := range value {
-			if strings.EqualFold(v.Value, search) {
-				return true, nil
-			}
-		}
-		return false, nil
-	}
-}
+// func tldMatch(key string, value []RawValue, search string) (bool, error) {
+// 	switch key {
+// 	default:
+// 		return false, fmt.Errorf("%w: TLD %s", ErrInvalidKeyword, key)
+// 	case "Include":
+// 		return false, nil
+// 	case "Match":
+// 		return false, fmt.Errorf("%w: TLD %s", ErrNotImplemented, key)
+// 	case "Host":
+// 		for _, v := range value {
+// 			if strings.EqualFold(v.Value, search) {
+// 				return true, nil
+// 			}
+// 		}
+// 		return false, nil
+// 	}
+// }
 
 // request: specific key(s) under a specified host(s) jq: '.[]host | | select(.key == $key)'
 // returns slice of matches (rawKeyword)

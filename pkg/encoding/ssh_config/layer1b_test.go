@@ -41,7 +41,8 @@ func TestDecodeToRaw(t *testing.T) {
 		{Comment: "XHeader Identities"},
 		{Key: "Host", Values: []RawValue{{"jc.gh.git-id", 0}}, Children: []RawKeyword{
 			{Key: "IdentityFile", Values: []RawValue{{"~/.ssh/id_rsa", 0}}},
-			{Comment: "XGitConfig user.name jtagcat # it is me!"}}},
+			{Comment: "XGitConfig user.name jtagcat # it is me!"},
+		}},
 		{},
 		{Comment: " Random comment"},
 		{Comment: "XGitConfig user.email user@domain.tld"},
@@ -49,13 +50,18 @@ func TestDecodeToRaw(t *testing.T) {
 		{},
 		{Key: "Host", Values: []RawValue{{"foo.gh.git-id", 0}, {"foo.sh.git-id", 1}}, EncodingKVSeperatorIsEquals: true, Children: []RawKeyword{
 			{Key: "IdentityFile", Values: []RawValue{{"~/.ssh/foo_sk", 0}}},
-			{Comment: "XHeader Remotes"}}},
+			{Comment: "XHeader Remotes"},
+		}},
 		{},
-		{Key: "Host", Values: []RawValue{{"*.gh.git-id", 0}}, Children: []RawKeyword{{Key: "HostName", EncodingKVSeperatorIsEquals: true, Values: []RawValue{{"github.com", 0}}},
-			{Comment: "XDescription \"iz GitHub\""}, {Key: "IdentitiesOnly", Values: []RawValue{{"yes", 0}}}}},
+		{Key: "Host", Values: []RawValue{{"*.gh.git-id", 0}}, Children: []RawKeyword{
+			{Key: "HostName", EncodingKVSeperatorIsEquals: true, Values: []RawValue{{"github.com", 0}}},
+			{Comment: "XDescription \"iz GitHub\""},
+			{Key: "IdentitiesOnly", Values: []RawValue{{"yes", 0}}},
+		}},
 		{Key: "Host", Values: []RawValue{{"*.sh.git-id", 0}}, Children: []RawKeyword{
 			{Key: "Hostname", Values: []RawValue{{"git.sr.ht", 0}}},
-			{Comment: " Child comment"}}},
+			{Comment: " Child comment"},
+		}},
 		{},
 		{Comment: " Root comment"},
 	}
