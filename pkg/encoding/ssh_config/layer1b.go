@@ -11,63 +11,114 @@ import (
 // 1b: the raw, no-typing way
 
 func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
-	var deep bool // under a host or match
-	var tl []RawTopLevel
-	var cl RawTopLevel // current level
-	var i int          // can't integrate it in to for?
+	var deep bool         // under a host or match
+	var cfg []RawTopLevel // tree is flusehd to cfg
+	var tree RawTopLevel  // current level
+
 	keywordType := reflect.TypeOf(Keywords{})
 	keywordsTotal := keywordType.NumField()
+
+	var prevLineComment []string // buffer f
+
 	scanner := bufio.NewScanner(data)
-	for scanner.Scan() {
-		i++
-		rkw, err := parseLine(strings.ToValidUTF8(scanner.Text(), ""))
+	for i := 1; scanner.Scan(); i++ {
+		line, err := parseLine(strings.ToValidUTF8(scanner.Text(), ""))
 		if err == ErrInvalidQuoting { // crash and burn
 			err = fmt.Errorf("while parsing line %d: %w", i, err)
 		}
 		if err != nil {
-			return tl, err
+			return cfg, err
 		}
 
-		switch rkw.Key {
+		// if prevLineComment.bool { // hack instead of scanner.scanner.Peek() (not exists); see below [B]
+		// 	if !deep || reflect.DeepEqual(line, RawKeyword{}) {
+		// 		// prevLineComment implies this is not the first run
+		// 		cfg = append(cfg, tree) // flush previous tree
+		// 		tree = RawTopLevel{Comment: prevLineComment.string}
+		// 	} else { // deep and non-empty line
+		// 		tree.Children = append(tree.Children, RawKeyword{Comment: prevLineComment.string}) //ok
+		// 	}
+		// 	prevLineComment.bool = false
+		// }
+
+		// [B]
+		// if only there was bufio.scanner.Peek()
+		// there is bufio.reader.Peek(), but not feeling like using bufio.reader instead of .scanner today.
+		// an another variant would be to just read all, but that's not buffer buffer.
+		// thus:
+		// get next line
+
+		switch line.Key {
+		case "":
+			if !deep { // TLD
+				if i != 1 { // flush previous [macro C]
+					cfg = append(cfg, tree)
+				}
+				tree = RawTopLevel{Comment: line.Comment} // may be an empty line as well; empty comments are trimmed
+			} else { // in a tree, buffering to see whether we hit a new TLD or subkey (in the same tree) first.
+				prevLineComment = append(prevLineComment, line.Comment)
+			}
 		case "Host", "Match", "Include":
-			if rkw.Key == "Include" {
+			if line.Key == "Include" {
 				deep = false
 			} else {
 				deep = true
 			}
-			if cl.Key != "" { // flush
-				tl = append(tl, cl)
+			if i != 1 {
+				for _, c := range prevLineComment { // i != 1 anyway
+					if c == "" {
+						break
+					}
+					tree.Children = append(tree.Children, RawKeyword{Comment: c})
+					prevLineComment = prevLineComment[1:]
+				}
+				cfg = append(cfg, tree)
+				for _, c := range prevLineComment { // continue as !deep
+					tree = RawTopLevel{Comment: c}
+					cfg = append(cfg, tree)
+				}
+				prevLineComment = []string{}
 			}
-			cl.Key = rkw.Key
-			cl.Values = rkw.Values
-			cl.Comment = rkw.Comment
-			cl.EncodingKVSeperatorIsEquals = rkw.EncodingKVSeperatorIsEquals
-			cl.Children = []RawKeyword{}
+			tree = RawTopLevel{line.Key, line.Values, line.Comment, line.EncodingKVSeperatorIsEquals, []RawKeyword{}}
 		default:
 			if !deep {
-				return tl, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyLocation)
+				return cfg, fmt.Errorf("while parsing line %d: %w: TLD %s", i, ErrInvalidKeyword, line.Key)
 			}
+
+			// flush comments
+			for _, c := range prevLineComment { // i != 1 anyway
+				tree.Children = append(tree.Children, RawKeyword{Comment: c})
+			}
+			prevLineComment = []string{}
 
 			// basic 'does key exist'
 			var exists bool
-			if rkw.Key == "" {
-				exists = true // comment line
-			}
 			for i := 0; i < keywordsTotal; i++ {
-				if keywordType.Field(i).Name == rkw.Key {
+				if strings.EqualFold(keywordType.Field(i).Name, line.Key) {
 					exists = true
 					break
 				}
 			}
 			if !exists {
-				return tl, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyword)
+				return cfg, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyword)
 			}
 
-			cl.Children = append(cl.Children, rkw)
+			tree.Children = append(tree.Children, line)
 		}
 	}
-	// flush last
-	return append(tl, cl), scanner.Err() // no need to wrap
+	for _, c := range prevLineComment { // add comments before newline to last tree
+		if c == "" {
+			break
+		}
+		tree.Children = append(tree.Children, RawKeyword{Comment: c})
+		prevLineComment = prevLineComment[1:]
+	}
+	cfg = append(cfg, tree)
+	for _, c := range prevLineComment { // continue as !deep
+		tree = RawTopLevel{Comment: c}
+		cfg = append(cfg, tree)
+	}
+	return cfg, scanner.Err()
 }
 
 var indent = "  "
@@ -77,16 +128,21 @@ func EncodeFromRaw(rawobj []RawTopLevel, data io.Writer) (err error) {
 	defer w.Flush()
 
 	for _, rt := range rawobj {
+		var enline string
 		switch rt.Key {
 		default:
 			return fmt.Errorf("while encoding %q: %w", rt.Key, ErrInvalidKeyword)
 		case "Host", "Match", "Include":
-			var enline string
 			enline, err = encodeLine("", RawKeyword{rt.Key, rt.Values, rt.Comment, rt.EncodingKVSeperatorIsEquals})
 			w.WriteString(enline + "\n")
 
 			for _, c := range rt.Children {
 				enline, err = encodeLine(indent, c)
+				w.WriteString(enline + "\n")
+			}
+		case "":
+			if rt.Comment == "" {
+				enline, err = encodeLine("", RawKeyword{Comment: rt.Comment})
 				w.WriteString(enline + "\n")
 			}
 		}

@@ -11,6 +11,9 @@ import (
 // possible errors: nil, errInvalidQuoting
 func parseLine(data string) (RawKeyword, error) {
 	trimmedLine := strings.TrimSpace(data)
+	if trimmedLine == "" {
+		return RawKeyword{}, nil
+	}
 	if strings.HasPrefix(trimmedLine, "#") {
 		// dedicated comment line
 		return RawKeyword{Comment: strings.TrimPrefix(trimmedLine, "#")}, nil
@@ -115,7 +118,10 @@ runereader:
 	if quoted != 0 {
 		err = fmt.Errorf("unescapeValues: %q: %w", currentString, ErrInvalidQuoting)
 	}
-	return append(strings, RawValue{currentString, 0}), comment, err
+	if currentString != "" {
+		strings = append(strings, RawValue{currentString, 0})
+	}
+	return strings, comment, err
 }
 
 // encodes an ssh_config valuepart
