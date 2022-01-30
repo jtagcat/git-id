@@ -34,13 +34,100 @@ func GetBetweenHeaders(cfg []RawTopLevel, header, eofHeader string) (beforeHeade
 	return beforeHeader, betweenHeaders, afterHeader
 }
 
-func DecodeXKeys(cfg []RawTopLevel, xkeyPrefix string) []RawTopLevel {
+// general decode/encode: root comment
+// root/sub placement change
+/*
+*  Host
+*    Value
+*	 XSub
+*  XHost // lookahead: if uncommented in same tree
+*    XSub
+*    InvalidValue // if there are any non-comments between
+*  Host
 
+ */
+
+// rootXKeys: which should be considered as TLD (x)keys
+// NOTE: rootXKeys may not have any children; to be implemented: x-only children
+// unbalanced: trees might not be how they should be, comment placement with newlines
+func DecodeXKeysUnbalanced(cfg []RawTopLevel, xkeyPrefix string, rootXKeys []string) (newCfg []RawTopLevel, _ error) {
+	rootXKMap := make(map[string]bool)
+	for _, rxk := range rootXKeys {
+		rootXKMap[strings.ToLower(rxk)] = false
+	}
+	var iOffset int
+rootParsing:
+	for i, tree := range cfg {
+		newCfg = append(newCfg, RawTopLevel{Key: tree.Key, Values: tree.Values, Comment: tree.Comment, EncodingKVSeperatorIsEquals: tree.EncodingKVSeperatorIsEquals}) // add root without children
+		for ci, child := range tree.Children {
+			if child.Key == "" && strings.HasPrefix(strings.ToLower(child.Comment), strings.ToLower(xkeyPrefix)) { // xkey
+				t, err := decodeLine(child.Comment)
+				if err != nil {
+					return nil, err
+				}
+
+				if _, ok := rootXKMap[strings.ToLower(t.Key)]; ok { // xroot
+					// detach
+					newCfg = append(newCfg, RawTopLevel{Key: t.Key, Values: t.Values, Comment: t.Comment, EncodingKVSeperatorIsEquals: t.EncodingKVSeperatorIsEquals})
+					iOffset++
+					// add detached items
+					for _, c := range tree.Children[ci+1:] {
+						// check that there aren't any non-comments until the next non-xkey,
+						// as else we'd move the virtual root of the valid key off its actual root
+						if c.Key != "" {
+							return nil, ErrValidSubkeyAfterXRoot
+						}
+
+						t, err := decodeLine(c.Comment)
+						if err != nil {
+							return nil, err
+						}
+						if _, ok := rootXKMap[strings.ToLower(t.Key)]; ok { // xroot
+							newCfg = append(newCfg, RawTopLevel{Key: t.Key, Values: t.Values, Comment: t.Comment, EncodingKVSeperatorIsEquals: t.EncodingKVSeperatorIsEquals})
+							iOffset++
+						} else {
+							newCfg[i+iOffset].Children = append(newCfg[i+iOffset].Children, t)
+						}
+					}
+					continue rootParsing // complete detaching
+				} // non-root xkey
+				newCfg[i+iOffset].Children = append(newCfg[i+iOffset].Children, t)
+			} else { // non-keys
+				newCfg[i+iOffset].Children = append(newCfg[i+iOffset].Children, child)
+			}
+		}
+
+		if tree.Key == "" && strings.HasPrefix(strings.ToLower(tree.Comment), strings.ToLower(xkeyPrefix)) {
+			t, err := decodeLine(tree.Comment)
+			if err != nil {
+				return nil, err
+			}
+			newCfg[i+iOffset] = RawTopLevel{Key: t.Key, Values: t.Values, Comment: t.Comment, EncodingKVSeperatorIsEquals: t.EncodingKVSeperatorIsEquals}
+		}
+	}
+	// TODO: join any root objects with last root, if it was detached by comment parser
+	return newCfg, nil
+	//TODO: merge this func to DecodeToRaw:
+	// 1. if xkey, parse it
+	// 2. root xkey logic to root nonxkey logic
+	// 3. seperateish non-root xkey logic
+	// x. encoder support
+}
+func balanceDecodedXKeys(cfg []RawTopLevel)
+
+func keywordToTLD(k RawKeyword) RawTopLevel {
+	return RawTopLevel{Key: k.Key, Values: k.Values, Comment: k.Comment, EncodingKVSeperatorIsEquals: k.EncodingKVSeperatorIsEquals}
 }
 
-func EncodeXKeys(cfg []RawTopLevel, xkeyPrefix string) []RawTopLevel {
-
+// bool: if children were lost
+func TLDToKeyword(t RawTopLevel) (RawKeyword, bool) {
+	return RawKeyword{Key: t.Key, Values: t.Values, Comment: t.Comment, EncodingKVSeperatorIsEquals: t.EncodingKVSeperatorIsEquals},
+		t.Children != nil
 }
+
+// func EncodeXKeys(cfg []RawTopLevel, xkeyPrefix string) []RawTopLevel {
+
+// }
 
 //
 

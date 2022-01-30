@@ -69,5 +69,5 @@ func TestDecodeToRaw(t *testing.T) {
 	got, err := DecodeToRaw(exampleConfig())
 	assert.Nil(t, err)
 	fmt.Printf("%v", got)
-	assert.Equal(t, got, want)
+	assert.Equal(t, want, got)
 }

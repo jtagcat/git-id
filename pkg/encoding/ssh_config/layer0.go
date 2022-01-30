@@ -9,7 +9,7 @@ import (
 // rawKeyword might be a TLD object;
 //
 // possible errors: nil, errInvalidQuoting
-func parseLine(data string) (RawKeyword, error) {
+func decodeLine(data string) (RawKeyword, error) {
 	trimmedLine := strings.TrimSpace(data)
 	if trimmedLine == "" {
 		return RawKeyword{}, nil

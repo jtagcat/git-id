@@ -22,31 +22,13 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 
 	scanner := bufio.NewScanner(data)
 	for i := 1; scanner.Scan(); i++ {
-		line, err := parseLine(strings.ToValidUTF8(scanner.Text(), ""))
+		line, err := decodeLine(strings.ToValidUTF8(scanner.Text(), ""))
 		if err == ErrInvalidQuoting { // crash and burn
 			err = fmt.Errorf("while parsing line %d: %w", i, err)
 		}
 		if err != nil {
 			return cfg, err
 		}
-
-		// if prevLineComment.bool { // hack instead of scanner.scanner.Peek() (not exists); see below [B]
-		// 	if !deep || reflect.DeepEqual(line, RawKeyword{}) {
-		// 		// prevLineComment implies this is not the first run
-		// 		cfg = append(cfg, tree) // flush previous tree
-		// 		tree = RawTopLevel{Comment: prevLineComment.string}
-		// 	} else { // deep and non-empty line
-		// 		tree.Children = append(tree.Children, RawKeyword{Comment: prevLineComment.string}) //ok
-		// 	}
-		// 	prevLineComment.bool = false
-		// }
-
-		// [B]
-		// if only there was bufio.scanner.Peek()
-		// there is bufio.reader.Peek(), but not feeling like using bufio.reader instead of .scanner today.
-		// an another variant would be to just read all, but that's not buffer buffer.
-		// thus:
-		// get next line
 
 		switch line.Key {
 		case "":
