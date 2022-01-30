@@ -13,8 +13,8 @@ func TestDecodeValue(t *testing.T) {
 		err     error
 	}
 	inputs := map[string]out{
-		"Inv\"alid":       {nil, "", errInvalidQuoting},
-		"Inv'alid":        {nil, "", errInvalidQuoting},
+		"Inv\"alid":       {nil, "", ErrInvalidQuoting},
+		"Inv'alid":        {nil, "", ErrInvalidQuoting},
 		"\"Valid\"":       {[]RawValue{{"Valid", 2}}, "", nil},
 		"\"V'alid\"":      {[]RawValue{{"V'alid", 2}}, "", nil},
 		"String1 String2": {[]RawValue{{"String1", 0}, {"String2", 0}}, "", nil},

@@ -20,7 +20,7 @@ func parseLine(data string) (RawKeyword, error) {
 	valuesblob := trimmedLine[kvSeperatorPos+1:]
 
 	values, comment, err := decodeValue(valuesblob)
-	if err == errInvalidQuoting {
+	if err == ErrInvalidQuoting {
 		err = fmt.Errorf("%q: %w", data, err)
 	}
 
@@ -113,7 +113,7 @@ runereader:
 		currentString += string(rune)
 	}
 	if quoted != 0 {
-		err = fmt.Errorf("unescapeValues: %q: %w", currentString, errInvalidQuoting)
+		err = fmt.Errorf("unescapeValues: %q: %w", currentString, ErrInvalidQuoting)
 	}
 	return append(strings, RawValue{currentString, 0}), comment, err
 }
@@ -158,7 +158,7 @@ func encodeValue(values []RawValue, comment string) (encoded string, err error) 
 					encoded += "\\\\"
 				default:
 					encoded += "\\\\" // 1 backslash gets turned to 2 when read by OpenSSH
-					err = errWarnSingleBackslashTransformed
+					err = ErrWarnSingleBackslashTransformed
 					continue
 				}
 				pos += 1

@@ -21,7 +21,7 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 	for scanner.Scan() {
 		i++
 		rkw, err := parseLine(strings.ToValidUTF8(scanner.Text(), ""))
-		if err == errInvalidQuoting { // crash and burn
+		if err == ErrInvalidQuoting { // crash and burn
 			err = fmt.Errorf("while parsing line %d: %w", i, err)
 		}
 		if err != nil {
@@ -45,7 +45,7 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 			cl.Children = []RawKeyword{}
 		default:
 			if !deep {
-				return tl, fmt.Errorf("while parsing line %d: %w", i, errInvalidKeyLocation)
+				return tl, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyLocation)
 			}
 
 			// basic 'does key exist'
@@ -60,7 +60,7 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 				}
 			}
 			if !exists {
-				return tl, fmt.Errorf("while parsing line %d: %w", i, errInvalidKeyword)
+				return tl, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyword)
 			}
 
 			cl.Children = append(cl.Children, rkw)
@@ -79,7 +79,7 @@ func EncodeFromRaw(rawobj []RawTopLevel, data io.Writer) (err error) {
 	for _, rt := range rawobj {
 		switch rt.Key {
 		default:
-			return fmt.Errorf("while encoding %q: %w", rt.Key, errInvalidKeyword)
+			return fmt.Errorf("while encoding %q: %w", rt.Key, ErrInvalidKeyword)
 		case "Host", "Match", "Include":
 			var enline string
 			enline, err = encodeLine("", RawKeyword{rt.Key, rt.Values, rt.Comment, rt.EncodingKVSeperatorIsEquals})
