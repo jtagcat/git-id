@@ -18,7 +18,7 @@ var (
 // host: jc.gh.git-id; key: "XGitConfig user.name", keyIsComment: true
 //TODO: return []rawKeyword
 //TODO: error handling?
-func KeywordGet(tls []ssh_config.RawTopLevel, header, host, key string, keyIsComment bool) (sliceVals []string, err error) {
+func HostKeyword(tls []ssh_config.RawTopLevel, header, host, key string, keyIsComment bool) (sliceVals []string, err error) {
 	// var hostfinds, keyfinds int
 	var rightSection bool
 	for _, tl := range tls {
@@ -98,10 +98,10 @@ func TLDbySubKV(tls []ssh_config.RawTopLevel, header, subkey string, substring s
 	return nil, ErrNoMatch
 }
 
-// KeywordSet
+// SetRawKV
 // host: "*.gh.git-id"; key:  "XDescription"; keyIsComment: true
 // host: "" for TLD
-func KeywordSet(tls []ssh_config.RawTopLevel, header string, hostV []string, newKV ssh_config.RawKeyword, nth int, tlClearChildren bool) ([]ssh_config.RawTopLevel, error) {
+func SetRawKV(tls []ssh_config.RawTopLevel, header string, hostV []string, newKV ssh_config.RawKeyword, nth int, tlClearChildren bool) ([]ssh_config.RawTopLevel, error) {
 	rightSection, currentNth, success := false, 0, false
 setRoutine:
 	for _, tl := range tls {

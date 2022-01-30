@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/jtagcat/git-id/pkg"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
@@ -25,16 +26,13 @@ var useCmd = &cobra.Command{
 		if !flChRemote && !flChWho {
 			log.Fatal().Msg("nothing to do")
 		}
-		remote := "origin" // NOMVP
 
 		r := pkg.GitOpen(flPath)
-		url, err := pkg.GitRemoteURLGet0(r, remote)
+		url, err := pkg.GitRemoteURLGet0(r, remote) // o: NMVP
 		if err != nil {
 			log.Fatal().Err(err).Str("remote", remote).Msg("getting git remote url")
 		}
 
-		sshConfig_parentdir := "~/.ssh" // MVP
-		gitidConfig_name := "git-id.conf"
 		cfgPath := path.Join(sshConfig_parentdir, gitidConfig_name)
 		f, err := pkg.OpenFileExisting(cfgPath, os.O_RDONLY)
 		if err != nil {
@@ -45,8 +43,20 @@ var useCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal().Err(err).Msg("decoding ssh config")
 		}
-		pkg.GidRemoteGet()
-		//
+
+		urlParts := strings.Split(url.Host, ".")
+		tld := urlParts[len(urlParts)-1]
+		if tld == gitidTLD {
+			if len(urlParts) != 3 {
+				log.Fatal().Str("hostfound", url.Host).Msg("expected 3-part git-id hostname")
+			}
+			starHost, err := pkg.HostKeyword()
+		} else { // current url not git-id's
+			host, err := pkg.TLDbySubKV(cfg, gitidHeaderRemotes, "Hostname", url.Host, false)
+			if err != nil {
+				log.Fatal().Err(err).Str("domain", url.Host).Msg("getting git-id remote")
+			}
+		}
 
 		// ##### change remote url ##### (not same as clone)
 		// parse; check current git-ssh domain

@@ -64,3 +64,9 @@ func EqualFoldSlice(s []string, t []string) bool {
 	}
 	return true
 }
+
+//TODO:
+// func FlushToSlice(a &[]generic, i &generic) {
+// a = append(a, i)
+// i = nil
+// }

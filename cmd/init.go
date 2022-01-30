@@ -18,11 +18,7 @@ Moves ~/.ssh/config to ~/.ssh/global.conf.
 This enables default identities, and is currently the only supported setup.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: flagify args
-		sshConfig_parentdir := "~/.ssh"
-		baseConfig_name := "base.conf"
-		gitidConfig_name := "git-id.conf"
-		gitidDefaultsConfig_name := "git-id_defaults.conf"
-
+		//TODO: headers broken, other stuff borken, use ssh_config instead
 		sshConfig_path := path.Join(sshConfig_parentdir, "config")
 		baseConfig_path := path.Join(sshConfig_parentdir, baseConfig_name)
 

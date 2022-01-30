@@ -9,10 +9,15 @@ import (
 )
 
 var (
-	gitidHeaderInfo       = " This file is managed by git-id"
-	gitidHeaderRemotes    = " Remotes"
-	gitidHeaderIdentities = " Identities"
-	gitidTLD              = "git-id" // foo.gh.git-id
+	gitidHeaderInfo          = " This file is managed by git-id"
+	gitidHeaderRemotes       = "XHeader Remotes"
+	gitidHeaderIdentities    = "XHeader Identities"
+	gitidTLD                 = "git-id" // foo.gh.git-id
+	remote                   = "origin"
+	sshConfig_parentdir      = "~/.ssh"
+	gitidConfig_name         = "git-id.conf"
+	gitidDefaultsConfig_name = "git-id_defaults.conf"
+	baseConfig_name          = "base.conf"
 )
 
 // rootCmd is the base command, 'git id'
