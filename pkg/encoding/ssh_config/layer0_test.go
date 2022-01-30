@@ -27,7 +27,7 @@ func TestDecodeValue(t *testing.T) {
 	}
 	for input, want := range inputs {
 		go func(input string, want out) {
-			values, comments, err := decodeValue(input)
+			values, comments, err := DecodeValue(input)
 			assert.ErrorIs(t, err, want.err)
 			assert.Equal(t, want.values, values)
 			assert.Equal(t, want.comment, comments)

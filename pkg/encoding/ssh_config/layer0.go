@@ -19,7 +19,7 @@ func parseLine(data string) (RawKeyword, error) {
 	key := trimmedLine[:kvSeperatorPos]
 	valuesblob := trimmedLine[kvSeperatorPos+1:]
 
-	values, comment, err := decodeValue(valuesblob)
+	values, comment, err := DecodeValue(valuesblob)
 	if err == ErrInvalidQuoting {
 		err = fmt.Errorf("%q: %w", data, err)
 	}
@@ -40,7 +40,7 @@ func encodeLine(indent string, rkw RawKeyword) (string, error) {
 		keyPart += " "
 	}
 
-	valuePart, err := encodeValue(rkw.Values, rkw.Comment)
+	valuePart, err := EncodeValue(rkw.Values, rkw.Comment)
 	return keyPart + valuePart, err
 }
 
@@ -48,7 +48,7 @@ func encodeLine(indent string, rkw RawKeyword) (string, error) {
 // does not know of types
 //
 // possible errors: nil, errInvalidQuoting
-func decodeValue(s string) (values []RawValue, comment string, err error) {
+func DecodeValue(s string) (values []RawValue, comment string, err error) {
 	// func inspired by https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889 and strings.FieldsFunc()
 	strings, currentString, quoted := []RawValue{}, "", 0
 runereader:
@@ -124,7 +124,7 @@ runereader:
 // does not perform type checking
 //
 // possible errors: nil, errWarnSingleBackslashTransformed
-func encodeValue(values []RawValue, comment string) (encoded string, err error) {
+func EncodeValue(values []RawValue, comment string) (encoded string, err error) {
 	for i, v := range values {
 		if i != 0 {
 			encoded += " " // not required, but spaces between arguments is nice
