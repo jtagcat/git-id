@@ -22,7 +22,8 @@ var addRemoteCmd = &cobra.Command{
 	Short: "Add an remote",
 	Long: `NOT IMPLEMENTED
 	
-	Usage: git-id remote add <remote slug> <actual host>`,
+	Usage: git-id remote add <remote slug> <actual host>
+	Example: git-id remote add gh github.com -d'iz GitHub'`,
 	// log.Info().Msg( it is reccommened to add a default identity bla
 	// "this may be uesd by random stuff on your system,
 	// system might behave weirdly if this can't be used noninteractively"

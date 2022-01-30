@@ -7,6 +7,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
+	github.com/whilp/git-urls v1.0.0
 )
 
 require (

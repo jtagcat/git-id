@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"os"
+	"path"
 	"strconv"
 
-	"github.com/gogs/git-module"
 	"github.com/jtagcat/git-id/pkg"
+	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
@@ -26,8 +28,42 @@ var useCmd = &cobra.Command{
 		remote := "origin" // NOMVP
 
 		r := pkg.GitOpen(flPath)
+		url, err := pkg.GitRemoteURLGet0(r, remote)
+		if err != nil {
+			log.Fatal().Err(err).Str("remote", remote).Msg("getting git remote url")
+		}
+
+		sshConfig_parentdir := "~/.ssh" // MVP
+		gitidConfig_name := "git-id.conf"
+		cfgPath := path.Join(sshConfig_parentdir, gitidConfig_name)
+		f, err := pkg.OpenFileExisting(cfgPath, os.O_RDONLY)
+		if err != nil {
+			log.Fatal().Err(err).Str("path", cfgPath).Msg("opening ssh config")
+		}
+		defer f.Close()
+		cfg, err := ssh_config.DecodeToRaw(f)
+		if err != nil {
+			log.Fatal().Err(err).Msg("decoding ssh config")
+		}
+		pkg.GidRemoteGet()
+		//
+
+		// ##### change remote url ##### (not same as clone)
+		// parse; check current git-ssh domain
+		//   fail if not ssh
+		// does domain end with gitidTLD
+		//   magic
+		// else is domain registered in git-id
+		//   fail
+		// is ident present under domain
+		//   fail
+		// parsed url: replace domain (shared code with clone)
+		// set-url
+		// git config core
+
 		if flChRemote {
-			remoteToIdentZL(r, remote, args[0])
+			// url.Host =
+			r.RemoteURLSetFirst(remote, url.String())
 		}
 		if flChWho {
 			// for _, confopt := range [][]string{{"user.name", ident[name]}, {"user.email", ident[email]}, {"user.signingKey", ident[sigkey]}} {
@@ -49,29 +85,6 @@ var useCmd = &cobra.Command{
 }
 
 // ssh config fallback? is it possible to fallback, not parallely use ~/.ssh/config or sth?
-
-func remoteToIdentZL(r *git.Repository, remote, ident string) {
-	remotes, err := r.RemoteURLGet(remote)
-	if err != nil {
-		log.Fatal().Err(err).Msg("")
-	}
-	if len(remotes) != 1 { // NOMVP
-		log.Fatal().Msg("MVP needs exactly 1 remote URL for origin")
-	}
-
-	// ##### change remote url ##### (not same as clone)
-	// parse; check current git-ssh domain
-	//   fail if not ssh
-	// does domain end with gitidTLD
-	//   magic
-	// else is domain registered in git-id
-	//   fail
-	// is ident present under domain
-	//   fail
-	// parsed url: replace domain (shared code with clone)
-	// set-url
-	// git config core
-}
 
 var (
 	flChRemote bool
