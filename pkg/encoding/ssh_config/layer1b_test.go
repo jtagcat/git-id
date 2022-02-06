@@ -28,35 +28,37 @@ func exampleConfig() *strings.Reader {
 			"  HostName=github.com\n" + // 16
 			"  #XDescription \"iz GitHub\" \n" + // 17
 			"  IdentitiesOnly yes\n" + // 18
-			"Host *.sh.git-id\n" + // 19
-			"  Hostname git.sr.ht\n" + // 20
-			"  # Child comment\n" + // 21
-			"\n" + // 22
-			"  # Root comment") // 23
+			"  # XDescription this is not a key this is comment\n" + // 19
+			"Host *.sh.git-id\n" + // 20
+			"  Hostname git.sr.ht\n" + // 21
+			"  # Child comment\n" + // 22
+			"\n" + // 23
+			"  # Root comment") // 24
 }
 
 func TestDecodeToRaw(t *testing.T) {
 	want := []RawTopLevel{
 		{Comment: " This file is managed by git-id"},
-		{Comment: "XHeader Identities"},
+		{Key: "XHeader", Values: []RawValue{{"Identities", 0}}},
 		{Key: "Host", Values: []RawValue{{"jc.gh.git-id", 0}}, Children: []RawKeyword{
 			{Key: "IdentityFile", Values: []RawValue{{"~/.ssh/id_rsa", 0}}},
-			{Comment: "XGitConfig user.name jtagcat # it is me!"},
+			{Key: "XGitConfig", Values: []RawValue{{"user.name", 0}, {"jtagcat", 0}}, Comment: " it is me!"},
+			{},
+			{Comment: " Random comment"},
+			{Key: "XGitConfig", Values: []RawValue{{"user.email", 0}, {"user@domain.tld", 0}}},
+			{Key: "XDescription", Values: []RawValue{{"uwu", 0}}},
 		}},
-		{},
-		{Comment: " Random comment"},
-		{Comment: "XGitConfig user.email user@domain.tld"},
-		{Comment: "XDescription uwu"},
 		{},
 		{Key: "Host", Values: []RawValue{{"foo.gh.git-id", 0}, {"foo.sh.git-id", 1}}, EncodingKVSeperatorIsEquals: true, Children: []RawKeyword{
 			{Key: "IdentityFile", Values: []RawValue{{"~/.ssh/foo_sk", 0}}},
-			{Comment: "XHeader Remotes"},
 		}},
+		{Key: "XHeader", Values: []RawValue{{"Remotes", 0}}},
 		{},
 		{Key: "Host", Values: []RawValue{{"*.gh.git-id", 0}}, Children: []RawKeyword{
 			{Key: "HostName", EncodingKVSeperatorIsEquals: true, Values: []RawValue{{"github.com", 0}}},
-			{Comment: "XDescription \"iz GitHub\""},
+			{Key: "XDescription", Values: []RawValue{{"iz GitHub", 2}}},
 			{Key: "IdentitiesOnly", Values: []RawValue{{"yes", 0}}},
+			{Comment: " XDescription this is not a key this is comment"},
 		}},
 		{Key: "Host", Values: []RawValue{{"*.sh.git-id", 0}}, Children: []RawKeyword{
 			{Key: "Hostname", Values: []RawValue{{"git.sr.ht", 0}}},
@@ -66,7 +68,15 @@ func TestDecodeToRaw(t *testing.T) {
 		{Comment: " Root comment"},
 	}
 
-	got, err := DecodeToRawXKeys(exampleConfig())
+	rootXKMap := make(map[string]bool)
+	rootXKMap["xheader"] = false
+
+	subXKMap := make(map[string]bool)
+	for _, k := range []string{"XGitConfig", "XDescription"} {
+		subXKMap[strings.ToLower(k)] = true
+	}
+
+	got, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKMap)
 	assert.Nil(t, err)
 	fmt.Printf("%v", got)
 	assert.Equal(t, want, got)
