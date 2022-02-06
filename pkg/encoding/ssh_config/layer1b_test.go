@@ -69,10 +69,8 @@ func TestDecodeToRaw(t *testing.T) {
 		{Comment: " Root comment"},
 	}
 
-	rootXKMap := make(map[string]bool)
-	rootXKMap["xheader"] = false
-
-	subXKeys := []string{"xgitconfig", "xdescription"}
+	rootXKMap := map[string]bool{"xheader": false}
+	subXKeys := []string{"XGitConfig", "XDescription"}
 
 	got, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKeys)
 	assert.Nil(t, err)
@@ -83,10 +81,8 @@ func TestDecodeToRaw(t *testing.T) {
 func TestEncodeToRaw(t *testing.T) {
 	want := exampleConfig()
 
-	rootXKMap := make(map[string]bool)
-	rootXKMap["xheader"] = false
-
-	subXKeys := []string{"xgitconfig", "xdescription"}
+	rootXKMap := map[string]bool{"xheader": false}
+	subXKeys := []string{"XGitConfig", "XDescription"}
 
 	cfg, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKeys)
 	assert.Nil(t, err)
