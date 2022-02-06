@@ -9,9 +9,7 @@ Totally non-functional. I went on a tangent on implementing a library to interac
 
 
 ```sh
-$ git id init # ~/.ssh/config → ~/.ssh/base.conf
-              # + touch ~/.ssh/git-id{,_default}.conf
-              # Import git-id{,_default}.conf
+$ git id init # Include git-id.conf in ~/.ssh/config
 $ git id remote add gh github.com
 $ git id add gh default ~/.ssh/id_rsa --username jtagcat --email 'user@domain.tld'
 $ git id add gh work ~/.ssh/work_sk --username irlname --email 'irl@work.biz' --description 'Evilcorp'
@@ -28,25 +26,23 @@ TODO: instructions for zsh/othershell automatic `alias "git clone"="git id clone
 ## How it works
 ```ascii
      PUSH github.com
-Git ─────────────────► SSH         ┌─► ~/.ssh/id_rsa SSH github.com 
- jtagcat                │          │
- user@domain.tld        ▼          │
-                  ~/.ssh/config    │
-                        │          │
-                        └► ~/.ssh/base.conf
-                         + ~/.ssh/git-id_default.conf
+Git ─────────────────► SSH             ~/.ssh/id_rsa SSH github.com
+ jtagcat                │                ▲
+ user@domain.tld        │                │
+                        ▼                │
+                ~/.ssh/git-id.conf       │
+                  MATCH originalhost github.com
 ```
 ```ascii
     PUSH work.gh.git-id
-Git ───────────────────► SSH  ┌──────► ~/.ssh/work_sk SSH github.com 
+Git ───────────────────► SSH  ┌──────► ~/.ssh/work_sk SSH github.com
  irlname                  │   │
- irl@work.biz             ▼   │
-                  ~/.ssh/git-id.conf                                                  Created with
-                + ~/.ssh/base.conf                             https://github.com/lewish/asciiflow
+ irl@work.biz             │   │
+                          ▼
+                  ~/.ssh/git-id.conf
+                    HOST work.gh.git-id ─► work_sk                                    Created with
+                    HOST    *.gh.git-id ─► github.com          https://github.com/lewish/asciiflow             
 ```
-
-Defaults shall reside in a different file, otherwise will also read the default identity after resolving `work.gh.git-id`, **sometimes** using the default identity. The behaviour is dependant on alphabetic order and SSH version specifics.  
-I can't work with that, I can't hand it to interns. I did not find any easy or working way to do this, yet the issue is asked about, searched, worked around of.
 
 So, `git-id` is here to implement basic git identity management without dependencies: something simple to use, something that just works when you need to push a commit from your work, other work, or h4ck3r account, to the same remote host.
 
