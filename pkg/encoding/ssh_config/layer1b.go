@@ -134,9 +134,8 @@ func DecodeToRaw(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap map[str
 	return cfg, scanner.Err()
 }
 
-var indent = "  "
-
-func EncodeFromRaw(rawobj []RawTopLevel, data io.Writer) (err error) {
+// indent = "  " is reccommended
+func EncodeFromRaw(rawobj []RawTopLevel, data io.Writer, indent string) (err error) {
 	w := bufio.NewWriter(data)
 	defer w.Flush()
 
