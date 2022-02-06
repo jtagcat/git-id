@@ -71,12 +71,9 @@ func TestDecodeToRaw(t *testing.T) {
 	rootXKMap := make(map[string]bool)
 	rootXKMap["xheader"] = false
 
-	subXKMap := make(map[string]bool)
-	for _, k := range []string{"XGitConfig", "XDescription"} {
-		subXKMap[strings.ToLower(k)] = true
-	}
+	subXKeys := []string{"xgitconfig", "xdescription"}
 
-	got, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKMap)
+	got, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKeys)
 	assert.Nil(t, err)
 	fmt.Printf("%v", got)
 	assert.Equal(t, want, got)

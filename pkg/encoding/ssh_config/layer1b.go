@@ -12,14 +12,13 @@ import (
 // wrapper func for non-xkey usage
 func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 	rootXKeyMap := make(map[string]bool)
-	subXKeyMap := make(map[string]bool)
-	return DecodeToRawXKeys(data, rootXKeyMap, subXKeyMap)
+	return DecodeToRawXKeys(data, rootXKeyMap, []string{})
 }
 
 // xkeys: Custom keys nested inside comments.
 // rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
-// subXKeys: list of sub-level xkeys; bool means nothing
-func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap map[string]bool) ([]RawTopLevel, error) {
+// subXKeys: list of sub-level xkeys
+func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []string) ([]RawTopLevel, error) {
 	var deep bool         // under a host or match
 	var cfg []RawTopLevel // tree is flusehd to cfg
 	var tree RawTopLevel  // current level
@@ -28,6 +27,10 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap ma
 	keywordKMap := make(map[string]bool)
 	for i := 0; i < keywordType.NumField(); i++ {
 		keywordKMap[strings.ToLower(keywordType.Field(i).Name)] = false
+	}
+	subXKeyMap := make(map[string]bool)
+	for _, k := range subXKeys {
+		subXKeyMap[strings.ToLower(k)] = false
 	}
 
 	var prevLineComment []string // buffer
