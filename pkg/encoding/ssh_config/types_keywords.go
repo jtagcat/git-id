@@ -79,6 +79,7 @@ type Keywords struct {
 	RekeyLimit *RekeyLimit `minArgs:"1" maxArgs:"-2" definition:"rekeyLimit"`
 	// stringSlice: slice in go, slice in conf
 	CanonicalDomains *[]string `minArgs:"1" maxArgs:"-2" definition:"stringSlice"`
+	Include          *[]string `minArgs:"1" maxArgs:"-1" definition:"stringSlice"`
 	LogVerbose       *[]string `minArgs:"1" maxArgs:"-2" definition:"stringSlice"`
 	SendEnv          *[]string `minArgs:"1" maxArgs:"-2" definition:"stringSlice"`
 	SetEnv           *[]string `minArgs:"1" maxArgs:"-2" definition:"stringSlice"`

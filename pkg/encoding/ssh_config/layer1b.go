@@ -19,9 +19,10 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 // rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
 // subXKeys: list of sub-level xkeys
 func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []string) ([]RawTopLevel, error) {
-	var deep bool         // under a host or match
-	var cfg []RawTopLevel // tree is flusehd to cfg
-	var tree RawTopLevel  // current level
+	var deep bool           // under a host or match
+	var includeIsChild bool // if any other root header has been encountered before include, it is a subkey
+	var cfg []RawTopLevel   // tree is flusehd to cfg
+	var tree RawTopLevel    // current level
 
 	keywordType := reflect.TypeOf(Keywords{})
 	keywordKMap := make(map[string]bool)
@@ -86,7 +87,11 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []st
 		}
 
 		locaseKey := strings.ToLower(line.Key)
-		if rootXKey || locaseKey == "host" || locaseKey == "match" || locaseKey == "include" {
+		if rootXKey || locaseKey == "host" || locaseKey == "match" || locaseKey == "include" && !includeIsChild {
+			if !rootXKey && locaseKey != "include" {
+				includeIsChild = true // include is a subkey after host/match is encountered
+			}
+
 			if locaseKey == "include" || rootXKey && !rootXKeyMayHaveChildren {
 				deep = false
 			} else {
@@ -175,13 +180,17 @@ func EncodeFromRawXKeys(cfg []RawTopLevel, data io.Writer, indent string, rootXK
 	w := bufio.NewWriter(data)
 	defer w.Flush()
 
+	var includeIsChild bool
 	var warn error
 	for _, r := range cfg {
 		locaseRK := strings.ToLower(r.Key)
 		var enline string
 
 		_, isRootXKey := rootXKeyMap[locaseRK]
-		if isRootXKey || r.Key == "" || locaseRK == "host" || locaseRK == "match" || locaseRK == "include" {
+		if isRootXKey || r.Key == "" || locaseRK == "host" || locaseRK == "match" || locaseRK == "include" && !includeIsChild {
+			if !isRootXKey && locaseRK != "" && locaseRK != "include" {
+				includeIsChild = true
+			}
 			if isRootXKey {
 				x := r
 				r = RawTopLevel{}

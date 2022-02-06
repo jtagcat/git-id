@@ -3,7 +3,7 @@ package ssh_config
 // Compatible with OpenSSH 8.8
 type TopLevel struct {
 	Key string // enum(4): "" (comment / empty line), Host, Match,
-	//                     Import: not recursed, nothing is done (no Children)
+	//                     Include: not recursed, nothing is done (no Children)
 	Values []RawValue
 	// "# foobar" → " foobar", note the leading space
 	Comment                     string
@@ -14,7 +14,7 @@ type TopLevel struct {
 
 type RawTopLevel struct {
 	Key string // enum(4): "" (comment / empty line), Host, Match,
-	//                     Import: not recursed, nothing is done (no Children)
+	//                     Include: not recursed, nothing is done (no Children)
 	Values []RawValue
 	// "# foobar" → " foobar", note the leading space
 	Comment                     string

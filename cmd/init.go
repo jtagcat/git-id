@@ -28,7 +28,7 @@ This enables default identities, and is currently the only supported setup.`,
 			log.Fatal().Err(err).Msgf("Failed moving %q to %q", sshConfig_path, baseConfig_path)
 		}
 
-		// config: Imports base.conf git-id_defaults.conf
+		// config: Include base.conf git-id_defaults.conf
 		if err := os.WriteFile(sshConfig_path, []byte("Include \""+gitidDefaultsConfig_name+"\"\n"+
 			"Include \""+baseConfig_name+"\"\n"), 0600); err != nil {
 			log.Fatal().Err(err).Msgf("Failed creating new %q; old config at %q", sshConfig_path, baseConfig_path)
@@ -36,15 +36,15 @@ This enables default identities, and is currently the only supported setup.`,
 
 		// init managed files
 		for _, o := range [][]string{
-			{gitidConfig_name, "Import \"" + baseConfig_name + "\"\n" + gitidHeaderInfo + "\n"},
+			{gitidConfig_name, "Include \"" + baseConfig_name + "\"\n" + gitidHeaderInfo + "\n"},
 			{gitidDefaultsConfig_name, gitidHeaderInfo + "\n"}} {
 			if err := os.WriteFile(path.Join(sshConfig_parentdir, o[0]), []byte(o[1]), 0600); err != nil {
 				log.Error().Err(err).Msgf("Failed creating %q", o[0])
 			}
 		}
 		// import git-id.conf
-		if err := pkg.FileAppend(baseConfig_path, []byte("Import \""+gitidConfig_name+"\"")); err != nil {
-			log.Error().Err(err).Msgf("Failed adding Import to %q", baseConfig_path)
+		if err := pkg.FileAppend(baseConfig_path, []byte("Include \""+gitidConfig_name+"\"")); err != nil {
+			log.Error().Err(err).Msgf("Failed adding Include to %q", baseConfig_path)
 		}
 	},
 }
