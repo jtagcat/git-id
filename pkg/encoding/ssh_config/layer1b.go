@@ -13,7 +13,7 @@ import (
 func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 	rootXKeyMap := make(map[string]bool)
 	subXKeyMap := make(map[string]bool)
-	return DecodeToRawXKey(data, rootXKeyMap, subXKeyMap)
+	return DecodeToRawXKeys(data, rootXKeyMap, subXKeyMap)
 }
 
 // xkeys: Custom keys nested inside comments.
@@ -34,8 +34,8 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap ma
 
 	scanner := bufio.NewScanner(data)
 	for i := 1; scanner.Scan(); i++ {
-		line, err := decodeLine(strings.ToValidUTF8(scanner.Text(), ""))
-		if err == ErrInvalidQuoting { // crash and burn
+		line, err := decodeLine(strings.ToValidUTF8(scanner.Text(), "")) // [macro B]
+		if err == ErrInvalidQuoting {                                    // crash and burn
 			err = fmt.Errorf("while parsing line %d: %w", i, err)
 		}
 		if err != nil {
@@ -53,15 +53,18 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap ma
 					rootXKeyMayHaveChildren = mayHaveChildren
 				}
 			}
-			for sk, _ := range subXKeyMap {
+			for sk := range subXKeyMap {
 				if strings.HasPrefix(locaseCmt, sk) {
 					subXKey = true
 				}
 			}
 
-			line, err = decodeLine(strings.ToValidUTF8(line.Comment, ""))
-			if err != nil {
+			line, err = decodeLine(strings.ToValidUTF8(line.Comment, "")) // [macro B]
+			if err == ErrInvalidQuoting {
 				err = fmt.Errorf("while parsing xkey on line %d: %w", i, err)
+			}
+			if err != nil {
+				return cfg, err
 			}
 		}
 
@@ -167,12 +170,4 @@ func EncodeFromRaw(rawobj []RawTopLevel, data io.Writer, indent string) (err err
 		}
 	}
 	return err
-}
-
-func encodeKVSeperator(sepIsEquals bool) string {
-	if sepIsEquals {
-		return "="
-	} else {
-		return " "
-	}
 }
