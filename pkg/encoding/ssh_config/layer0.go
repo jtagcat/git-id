@@ -35,6 +35,9 @@ func decodeLine(data string) (RawKeyword, error) {
 //
 // possible errors: nil, errWarnSingleBackslashTransformed
 func encodeLine(indent string, rkw RawKeyword) (string, error) {
+	if rkw.Key == "" && rkw.Comment == "" {
+		return "", nil
+	}
 	keyPart := indent
 
 	if rkw.Key != "" {
@@ -173,6 +176,7 @@ func EncodeValue(values []RawValue, comment string) (encoded string, err error) 
 				pos += 1
 				continue
 			}
+			encoded += string(rune)
 		}
 
 		switch v.Quoted { // macro: quote

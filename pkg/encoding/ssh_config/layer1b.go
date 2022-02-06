@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// wrapper func for non-xkey usage
+// wrapper for usage without xkeys
 func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 	rootXKeyMap := make(map[string]bool)
 	return DecodeToRawXKeys(data, rootXKeyMap, []string{})
@@ -149,11 +149,17 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []st
 	return cfg, scanner.Err()
 }
 
+// wrapper for usage without xkeys
+func EncodeFromRaw(cfg []RawTopLevel, data io.Writer, indent string) error {
+	rootXKeyMap := make(map[string]bool)
+	return EncodeFromRawXKeys(cfg, data, indent, rootXKeyMap, []string{})
+}
+
 // indent = "  " is reccommended
 // xkeys: Custom keys nested inside comments. [macro C]
 // rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
 // subXKeys: list of sub-level xkeys
-func EncodeFromRaw(cfg []RawTopLevel, data io.Writer, indent string, rootXKeyMap map[string]bool, subXKeys []string) error {
+func EncodeFromRawXKeys(cfg []RawTopLevel, data io.Writer, indent string, rootXKeyMap map[string]bool, subXKeys []string) error {
 	keywordType := reflect.TypeOf(Keywords{})
 	keywordKMap := make(map[string]bool)
 	for i := 0; i < keywordType.NumField(); i++ {
@@ -175,11 +181,11 @@ func EncodeFromRaw(cfg []RawTopLevel, data io.Writer, indent string, rootXKeyMap
 		var enline string
 
 		_, isRootXKey := rootXKeyMap[locaseRK]
-		if isRootXKey || locaseRK == "host" || locaseRK == "match" || locaseRK == "include" ||
-			r.Key == "" {
+		if isRootXKey || r.Key == "" || locaseRK == "host" || locaseRK == "match" || locaseRK == "include" {
 			if isRootXKey {
 				x := r
-				r.Comment, _ = encodeLine("#", RawKeyword{x.Key, x.Values, x.Comment, x.EncodingKVSeperatorIsEquals})
+				r = RawTopLevel{}
+				r.Comment, _ = encodeLine("", RawKeyword{x.Key, x.Values, x.Comment, x.EncodingKVSeperatorIsEquals})
 			}
 
 			enline, warn = encodeLine("", RawKeyword{r.Key, r.Values, r.Comment, r.EncodingKVSeperatorIsEquals})
@@ -189,9 +195,10 @@ func EncodeFromRaw(cfg []RawTopLevel, data io.Writer, indent string, rootXKeyMap
 				locaseCK := strings.ToLower(c.Key)
 				if _, isSubXKey := subXKeyMap[locaseCK]; isSubXKey {
 					x := c
-					c.Comment, _ = encodeLine("#", x)
+					c = RawKeyword{}
+					c.Comment, _ = encodeLine("", x)
 
-				} else { // basic 'does (non-x)key exist' [macro D]
+				} else if c.Key != "" { // basic 'does (non-x)key exist' [macro D]
 					if _, ok := keywordKMap[locaseCK]; !ok {
 						return fmt.Errorf("while encoding %q: %w", c.Key, ErrInvalidKeyword)
 					}

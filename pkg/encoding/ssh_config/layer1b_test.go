@@ -1,6 +1,7 @@
 package ssh_config
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -16,13 +17,13 @@ func exampleConfig() *strings.Reader {
 			"  IdentityFile ~/.ssh/id_rsa\n" + // 4
 			"  #XGitConfig user.name jtagcat # it is me!\n" + // 5
 			"\n" + // 6
-			"# Random comment\n" + // 7
+			"  # Random comment\n" + // 7
 			"  #XGitConfig user.email user@domain.tld\n" + // 8
 			"  #XDescription uwu\n" + // 9
 			"\n" + // 10
 			"Host=foo.gh.git-id 'foo.sh.git-id'\n" + // 11
-			"IdentityFile ~/.ssh/foo_sk\n" + // 12
-			"#XHeader Remotes\n" + // 13
+			"  IdentityFile ~/.ssh/foo_sk\n" + // 12
+			"  #XHeader Remotes\n" + // 13
 			"\n" + // 14
 			"Host *.gh.git-id\n" + // 15
 			"  HostName=github.com\n" + // 16
@@ -33,7 +34,7 @@ func exampleConfig() *strings.Reader {
 			"  Hostname git.sr.ht\n" + // 21
 			"  # Child comment\n" + // 22
 			"\n" + // 23
-			"  # Root comment") // 24
+			"# Root comment") // 24
 }
 
 func TestDecodeToRaw(t *testing.T) {
@@ -77,4 +78,21 @@ func TestDecodeToRaw(t *testing.T) {
 	assert.Nil(t, err)
 	fmt.Printf("%v", got)
 	assert.Equal(t, want, got)
+}
+
+func TestEncodeToRaw(t *testing.T) {
+	want := exampleConfig()
+
+	rootXKMap := make(map[string]bool)
+	rootXKMap["xheader"] = false
+
+	subXKeys := []string{"xgitconfig", "xdescription"}
+
+	cfg, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKeys)
+	assert.Nil(t, err)
+
+	var got bytes.Buffer
+	err = EncodeFromRawXKeys(cfg, &got, "  ", rootXKMap, subXKeys)
+	assert.Nil(t, err)
+	assert.Equal(t, want, strings.NewReader(got.String()))
 }
