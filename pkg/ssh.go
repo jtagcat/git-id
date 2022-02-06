@@ -65,39 +65,6 @@ func HostKeyword(tls []ssh_config.RawTopLevel, header, host, key string, keyIsCo
 	return nil, ErrNoMatch
 }
 
-// MVP: substring can't be slice
-// search: HostName github.com; get *.gh-git.id
-//TODO: convert host []string to rawKeyword, return []rawKeyword
-func TLDbySubKV(tls []ssh_config.RawTopLevel, header, subkey string, substring string, keyIsComment bool) (host []string, err error) {
-	// var hostfinds, keyfinds int
-	var rightSection bool
-	for _, tl := range tls {
-		if header != "" && !rightSection && tl.Comment == header {
-			rightSection = true
-			continue
-		}
-		if header == "" || rightSection {
-			for _, svr := range tl.Children {
-				if !keyIsComment && strings.EqualFold(svr.Key, subkey) ||
-					keyIsComment && strings.EqualFold(svr.Comment, subkey) {
-					if len(svr.Values) != 1 {
-						//	return nil, ssh_config.ErrSingleValueOnly
-					} else {
-						if strings.EqualFold(svr.Values[0].Value, substring) {
-							for _, tlvv := range tl.Values {
-								host = append(host, tlvv.Value)
-							}
-							return host, nil
-						}
-					}
-
-				}
-			}
-		}
-	}
-	return nil, ErrNoMatch
-}
-
 // SetRawKV
 // host: "*.gh.git-id"; key:  "XDescription"; keyIsComment: true
 // host: "" for TLD
@@ -156,11 +123,9 @@ func getRawValueValues(rv []ssh_config.RawValue) (values []string) {
 
 // doing minimum repetitive things: https://www.youtube.com/watch?v=EZ05e7EMOLM
 
-// Host jc.gh.git-id
-//  IdentityFile ~/.ssh/id_rsa
-//  #XGitConfig user.name jtagcat
-//  #XGitConfig user.email blah
-//  #XDescription uwu
-// Host *.gh.git-id
-//   HostName github.com
-//   #XDescription "iz GitHub"
+//
+//
+//
+
+// get gitid remotes: from section gitidHeaderRemotes + RootBySubKV
+// get gitid idents of remote(s): from section gitidHeaderIdentities +

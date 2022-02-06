@@ -39,7 +39,7 @@ var useCmd = &cobra.Command{
 			log.Fatal().Err(err).Str("path", cfgPath).Msg("opening ssh config")
 		}
 		defer f.Close()
-		cfg, err := ssh_config.DecodeToRawXKeys(f)
+		cfg, err := ssh_config.DecodeToRawXKeys(f, gitidSSHConfigRootXKeys, gitidSSHConfigSubXKeys)
 		if err != nil {
 			log.Fatal().Err(err).Msg("decoding ssh config")
 		}

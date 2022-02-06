@@ -35,11 +35,6 @@ var addRemoteCmd = &cobra.Command{
 //NOTE: this may be uesd by random stuff on your system,
 //NOTE: system might behave weirdly if this can't be used noninteractively
 
-// ~/.ssh/git-id.conf:
-//Host <remote slug>
-//  HostName github.com
-//  IdentitiesOnly yes
-
 // git id remote rm: NOMVP
 var rmRemoteCmd = &cobra.Command{
 	Use:   "rm",
