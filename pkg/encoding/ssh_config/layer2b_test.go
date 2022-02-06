@@ -37,7 +37,7 @@ func TestProcessXComments(t *testing.T) {
 		{},
 		{Comment: " Root comment"},
 	}
-	cfg, _ := DecodeToRaw(exampleConfig2())
+	cfg, _ := DecodeToRawXKeys(exampleConfig2())
 	got, err := DecodeXKeysUnbalanced(cfg, "x", []string{"xHeAdEr"})
 	assert.Nil(t, err)
 	assert.Equal(t, want, got)

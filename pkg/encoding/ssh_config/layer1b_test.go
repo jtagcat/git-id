@@ -66,7 +66,7 @@ func TestDecodeToRaw(t *testing.T) {
 		{Comment: " Root comment"},
 	}
 
-	got, err := DecodeToRaw(exampleConfig())
+	got, err := DecodeToRawXKeys(exampleConfig())
 	assert.Nil(t, err)
 	fmt.Printf("%v", got)
 	assert.Equal(t, want, got)
