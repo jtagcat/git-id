@@ -17,7 +17,7 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 }
 
 // xkeys: Custom keys nested inside comments.
-// rootXKeys: list of root-level xkeys; bool: may have children (recommend default: true)
+// rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
 // subXKeys: list of sub-level xkeys; bool means nothing
 func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap map[string]bool) ([]RawTopLevel, error) {
 	var deep bool         // under a host or match
@@ -59,12 +59,14 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap ma
 				}
 			}
 
-			line, err = decodeLine(strings.ToValidUTF8(line.Comment, "")) // [macro B]
-			if err == ErrInvalidQuoting {
-				err = fmt.Errorf("while parsing xkey on line %d: %w", i, err)
-			}
-			if err != nil {
-				return cfg, err
+			if rootXKey || subXKey { // parse xkey comment to key
+				line, err = decodeLine(strings.ToValidUTF8(line.Comment, "")) // [macro B]
+				if err == ErrInvalidQuoting {
+					err = fmt.Errorf("while parsing xkey on line %d: %w", i, err)
+				}
+				if err != nil {
+					return cfg, err
+				}
 			}
 		}
 
@@ -104,7 +106,7 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeyMap ma
 				prevLineComment = []string{} // clear buffer
 			}
 			// create a new tree (previous already flushed)
-			tree = RawTopLevel{line.Key, line.Values, line.Comment, line.EncodingKVSeperatorIsEquals, []RawKeyword{}}
+			tree = RawTopLevel{Key: line.Key, Values: line.Values, Comment: line.Comment, EncodingKVSeperatorIsEquals: line.EncodingKVSeperatorIsEquals}
 			continue // emulating switch statement
 		}
 
