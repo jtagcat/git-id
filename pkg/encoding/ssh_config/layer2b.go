@@ -7,23 +7,31 @@ import (
 // splits []RawTopLevel to up to 3, based on start/end header (comment). 2nd is what you usually want.
 // Only the first match will be considered;
 // header of default value ("") will be ignored.
-//TODO: split tree if it is headered (?)
-func GetBetweenHeaders(cfg []RawTopLevel, header, eofHeader string) (beforeHeader, betweenHeaders, afterHeader []RawTopLevel) {
+func GetBetweenHeaders(cfg []RawTopLevel, headers, eofHeaders []string) (beforeHeader, betweenHeaders, afterHeader []RawTopLevel) {
+	headerMap := make(map[string]bool)
+	for _, h := range headers {
+		headerMap[strings.ToLower(h)] = false
+	}
+	eofHeaderMap := make(map[string]bool)
+	for _, h := range eofHeaders {
+		eofHeaderMap[strings.ToLower(h)] = false
+	}
+
 	var state int
-	if header == "" {
+	if len(headers) == 0 {
 		state = 1
 	}
 	for _, line := range cfg {
 		switch state {
 		case 0: // before header
-			if line.Key == "" && strings.EqualFold(line.Comment, header) {
+			if _, ok := headerMap[strings.ToLower(line.Comment)]; ok {
 				// found first header
 				state = 1
 				continue
 			}
 			beforeHeader = append(beforeHeader, line)
 		case 1: // during header
-			if line.Key == "" && strings.EqualFold(line.Comment, eofHeader) && eofHeader != "" {
+			if _, ok := eofHeaderMap[strings.ToLower(line.Comment)]; ok {
 				state = 2
 				continue
 			}
@@ -35,12 +43,6 @@ func GetBetweenHeaders(cfg []RawTopLevel, header, eofHeader string) (beforeHeade
 	return beforeHeader, betweenHeaders, afterHeader
 }
 
-// func EncodeXKeys(cfg []RawTopLevel, xkeyPrefix string) []RawTopLevel {
-
-// }
-
-//
-
 //
 
 // func TLDofKV(cfg []RawTopLevel, subkeyIsComment bool, subkey string, subvalues []string) {
@@ -48,27 +50,6 @@ func GetBetweenHeaders(cfg []RawTopLevel, header, eofHeader string) (beforeHeade
 // 		for _, kv := range line.Children {
 // 			if !subkeyIsComment && strings.EqualFold(kv.)
 // 		}
-// 	}
-// }
-
-// key enum: Host, Match, Include
-// key-value likely part of RawTopLevel
-// search is 2nd side of equals
-// func tldMatch(key string, value []RawValue, search string) (bool, error) {
-// 	switch key {
-// 	default:
-// 		return false, fmt.Errorf("%w: TLD %s", ErrInvalidKeyword, key)
-// 	case "Include":
-// 		return false, nil
-// 	case "Match":
-// 		return false, fmt.Errorf("%w: TLD %s", ErrNotImplemented, key)
-// 	case "Host":
-// 		for _, v := range value {
-// 			if strings.EqualFold(v.Value, search) {
-// 				return true, nil
-// 			}
-// 		}
-// 		return false, nil
 // 	}
 // }
 
