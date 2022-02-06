@@ -4,14 +4,17 @@ import (
 	"os"
 
 	"github.com/jtagcat/git-id/pkg"
+	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
 var (
 	gitidHeaderInfo          = " This file is managed by git-id"
-	gitidHeaderRemotes       = "XHeader Remotes"
-	gitidHeaderIdentities    = "XHeader Identities"
+	gitidHeaderRemotes       = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{"Remotes", 0}}}
+	gitidHeaderIdentities    = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{"Identities", 0}}}
+	gitidSSHConfigRootXKeys  = map[string]bool{"xheader": false}
+	gitidSSHConfigSubXKeys   = []string{"XGitConfig", "XDescription"}
 	gitidTLD                 = "git-id" // foo.gh.git-id
 	remote                   = "origin"
 	sshConfig_parentdir      = "~/.ssh"
@@ -50,6 +53,7 @@ func init() {
 	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) //TODO: parse -vvv and --verbose=5 / --verbose=info
 
 	rootCmd.PersistentFlags().StringVarP(&flPath, "", "C", "", "Act on path instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
+
 }
 
 // NOTMVP: custom core.sshCommand additions
