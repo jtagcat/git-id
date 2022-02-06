@@ -15,7 +15,7 @@ func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
 	return DecodeToRawXKeys(data, rootXKeyMap, []string{})
 }
 
-// xkeys: Custom keys nested inside comments.
+// xkeys: Custom keys nested inside comments. [macro C]
 // rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
 // subXKeys: list of sub-level xkeys
 func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []string) ([]RawTopLevel, error) {
@@ -125,7 +125,7 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []st
 		prevLineComment = []string{}
 
 		if !subXKey {
-			// basic 'does (non-x)key exist'
+			// basic 'does (non-x)key exist' [macro D]
 			if _, ok := keywordKMap[locaseKey]; !ok {
 				return cfg, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyword)
 			}
@@ -150,29 +150,59 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []st
 }
 
 // indent = "  " is reccommended
-func EncodeFromRaw(rawobj []RawTopLevel, data io.Writer, indent string) (err error) {
+// xkeys: Custom keys nested inside comments. [macro C]
+// rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
+// subXKeys: list of sub-level xkeys
+func EncodeFromRaw(cfg []RawTopLevel, data io.Writer, indent string, rootXKeyMap map[string]bool, subXKeys []string) error {
+	keywordType := reflect.TypeOf(Keywords{})
+	keywordKMap := make(map[string]bool)
+	for i := 0; i < keywordType.NumField(); i++ {
+		keywordKMap[strings.ToLower(keywordType.Field(i).Name)] = false
+	}
+
+	// xKeys are encoded in this func because indenting
+	subXKeyMap := make(map[string]bool)
+	for _, k := range subXKeys {
+		subXKeyMap[strings.ToLower(k)] = false
+	}
+
 	w := bufio.NewWriter(data)
 	defer w.Flush()
 
-	for _, rt := range rawobj {
+	var warn error
+	for _, r := range cfg {
+		locaseRK := strings.ToLower(r.Key)
 		var enline string
-		switch rt.Key {
-		default:
-			return fmt.Errorf("while encoding %q: %w", rt.Key, ErrInvalidKeyword)
-		case "Host", "Match", "Include":
-			enline, err = encodeLine("", RawKeyword{rt.Key, rt.Values, rt.Comment, rt.EncodingKVSeperatorIsEquals})
+
+		_, isRootXKey := rootXKeyMap[locaseRK]
+		if isRootXKey || locaseRK == "host" || locaseRK == "match" || locaseRK == "include" ||
+			r.Key == "" {
+			if isRootXKey {
+				x := r
+				r.Comment, _ = encodeLine("#", RawKeyword{x.Key, x.Values, x.Comment, x.EncodingKVSeperatorIsEquals})
+			}
+
+			enline, warn = encodeLine("", RawKeyword{r.Key, r.Values, r.Comment, r.EncodingKVSeperatorIsEquals})
 			w.WriteString(enline + "\n")
 
-			for _, c := range rt.Children {
-				enline, err = encodeLine(indent, c)
+			for _, c := range r.Children {
+				locaseCK := strings.ToLower(c.Key)
+				if _, isSubXKey := subXKeyMap[locaseCK]; isSubXKey {
+					x := c
+					c.Comment, _ = encodeLine("#", x)
+
+				} else { // basic 'does (non-x)key exist' [macro D]
+					if _, ok := keywordKMap[locaseCK]; !ok {
+						return fmt.Errorf("while encoding %q: %w", c.Key, ErrInvalidKeyword)
+					}
+				}
+
+				enline, warn = encodeLine(indent, c)
 				w.WriteString(enline + "\n")
 			}
-		case "":
-			if rt.Comment == "" {
-				enline, err = encodeLine("", RawKeyword{Comment: rt.Comment})
-				w.WriteString(enline + "\n")
-			}
+			continue
 		}
+		return fmt.Errorf("while encoding %q: %w", r.Key, ErrInvalidKeyword)
 	}
-	return err
+	return warn
 }
