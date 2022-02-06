@@ -43,10 +43,11 @@ See [layer1b_test.go](layer1b_test.go) for an example. There basic schema is her
 ```
 
 ### Comments and newlines
-Comments in ssh_config are defined as empty lines or space after an unquoted `#` character.
- - `# hello` in ssh_config is under `*.Comment` as ` hello` (mind the space)
+Comments in ssh_config are defined as empty lines || space after an unquoted `#` character.
+ - `# hello` in ssh_config is under `.Comment` as ` hello` (mind the space)
  - `Hostname foo #`, ` #` will be trimmed, while `Hostname foo # ` Comment = ` `
    - `#\n` will be trimmed to `\n`.
+ - A space between a KV and a comment will always be inserted. (`key value #comment`, not `key value#comment`)
 
 ### Indenting
 Encoding: Indenting is currently soft-coded to 2 spaces. Indentation is used for sub-objects.

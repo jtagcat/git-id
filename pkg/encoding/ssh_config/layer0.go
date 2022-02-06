@@ -36,11 +36,14 @@ func decodeLine(data string) (RawKeyword, error) {
 // possible errors: nil, errWarnSingleBackslashTransformed
 func encodeLine(indent string, rkw RawKeyword) (string, error) {
 	keyPart := indent
-	keyPart += rkw.Key
-	if rkw.EncodingKVSeperatorIsEquals {
-		keyPart += "="
-	} else {
-		keyPart += " "
+
+	if rkw.Key != "" {
+		keyPart += rkw.Key
+		if rkw.EncodingKVSeperatorIsEquals {
+			keyPart += "="
+		} else {
+			keyPart += " "
+		}
 	}
 
 	valuePart, err := EncodeValue(rkw.Values, rkw.Comment)
@@ -179,8 +182,12 @@ func EncodeValue(values []RawValue, comment string) (encoded string, err error) 
 			encoded += "\""
 		}
 	}
+
 	if comment != "" {
-		comment = " #" + comment
+		comment = "#" + comment
+		if len(values) != 0 { // prettify
+			comment = " " + comment
+		}
 	}
 	return encoded + comment, err
 }
