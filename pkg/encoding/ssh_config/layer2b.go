@@ -27,7 +27,7 @@ func GetBetweenHeaders(cfg []RawTopLevel, startHeaders, eofHeaders []RawTopLevel
 		switch state {
 		case 0: // before header
 			if values, ok := startHeaderMap[strings.ToLower(line.Key)]; ok { // key matches
-				if valuesMatch(line.Values, values) {
+				if rawValuesMatch(line.Values, values) {
 					// found a starting header
 					state = 1
 					continue
@@ -36,7 +36,7 @@ func GetBetweenHeaders(cfg []RawTopLevel, startHeaders, eofHeaders []RawTopLevel
 			beforeHeader = append(beforeHeader, line)
 		case 1: // during header
 			if values, ok := eofHeaderMap[strings.ToLower(line.Key)]; ok {
-				if valuesMatch(line.Values, values) {
+				if rawValuesMatch(line.Values, values) {
 					// found an eofHeader
 					state = 2
 					continue
@@ -50,7 +50,7 @@ func GetBetweenHeaders(cfg []RawTopLevel, startHeaders, eofHeaders []RawTopLevel
 	return beforeHeader, betweenHeaders, afterHeader
 }
 
-func valuesMatch(a, b []RawValue) bool { // similar to EqualFoldSlice
+func rawValuesMatch(a, b []RawValue) bool { // similar to EqualFoldSlice
 	if len(a) != len(b) {
 		return false
 	}
@@ -61,22 +61,30 @@ func valuesMatch(a, b []RawValue) bool { // similar to EqualFoldSlice
 	}
 	return true
 }
+func oneRawValuesMatch(a []RawValue, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if !strings.EqualFold(v.Value, b[i]) {
+			return false
+		}
+	}
+	return true
+}
 
-//
-
-//
-
-// func TLDofKV(cfg []RawTopLevel, subkeyIsComment bool, subkey string, subvalues []string) {
-// 	for _, line := range cfg {
-// 		for _, kv := range line.Children {
-// 			if !subkeyIsComment && strings.EqualFold(kv.)
-// 		}
-// 	}
-// }
-
-// request: specific key(s) under a specified host(s) jq: '.[]host | | select(.key == $key)'
-// returns slice of matches (rawKeyword)
-// not intended: using the returned values directly for writing (use nth)
-// MATCH not implemeneted
-// func MatchingHostsTrees(cfg []RawTopLevel, hostkey, hostvalue, key string, keyIsComment bool) {
-// }
+// get all roots what have defined KV under them
+func RootBySubKV(cfg []RawTopLevel, rootKey, subKey string, subValue []string) (scfg []RawTopLevel) {
+	for _, r := range cfg {
+		if strings.EqualFold(r.Key, rootKey) {
+			for _, sk := range r.Children {
+				if strings.EqualFold(sk.Key, subKey) {
+					if oneRawValuesMatch(sk.Values, subValue) {
+						scfg = append(scfg, r)
+					}
+				}
+			}
+		}
+	}
+	return scfg
+}
