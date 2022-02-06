@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io/fs"
 	"os"
 	"path"
 
@@ -13,38 +14,29 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize git-id",
-	Long: `Needs to be ran once per user account.
+	Long: `Ran once per user account.
 Moves ~/.ssh/config to ~/.ssh/global.conf.
 This enables default identities, and is currently the only supported setup.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: flagify args
-		//TODO: headers broken, other stuff borken, use ssh_config instead
-		sshConfig_path := path.Join(sshConfig_parentdir, "config")
-		baseConfig_path := path.Join(sshConfig_parentdir, baseConfig_name)
+		sshConfig_path := path.Join(sshConfigDir, "config")
+		gitidConfig_path := path.Join(sshConfigDir, gitidConfig_name)
 
-		// config → base.conf
-		if err := pkg.RenameNoOverwrite(sshConfig_path, baseConfig_path); err != nil {
-			// if !errors.Is(err, fs.ErrExist) { //TODO FT: better messaging? interactive overwrite?
-			log.Fatal().Err(err).Msgf("Failed moving %q to %q", sshConfig_path, baseConfig_path)
-		}
-
-		// config: Include base.conf git-id_defaults.conf
-		if err := os.WriteFile(sshConfig_path, []byte("Include \""+gitidDefaultsConfig_name+"\"\n"+
-			"Include \""+baseConfig_name+"\"\n"), 0600); err != nil {
-			log.Fatal().Err(err).Msgf("Failed creating new %q; old config at %q", sshConfig_path, baseConfig_path)
-		}
-
-		// init managed files
-		for _, o := range [][]string{
-			{gitidConfig_name, "Include \"" + baseConfig_name + "\"\n" + gitidHeaderInfo + "\n"},
-			{gitidDefaultsConfig_name, gitidHeaderInfo + "\n"}} {
-			if err := os.WriteFile(path.Join(sshConfig_parentdir, o[0]), []byte(o[1]), 0600); err != nil {
-				log.Error().Err(err).Msgf("Failed creating %q", o[0])
+		// init git-id.conf
+		if _, err := os.Stat(gitidConfig_path); err == fs.ErrNotExist {
+			// write only if doesn't exist
+			if err := os.WriteFile(gitidConfig_path, []byte(gitidHeaderInfo+"\n"), 0600); err != nil {
+				log.Error().Err(err).Msgf("Failed creating %q", gitidConfig_path)
 			}
+		} else if err != nil {
+			log.Fatal().Err(err).Msgf("Failed stating %q", gitidConfig_path)
+		} else if err == nil {
+			log.Info().Str("path", gitidConfig_path).Msg("git-id config already exists")
 		}
-		// import git-id.conf
-		if err := pkg.FileAppend(baseConfig_path, []byte("Include \""+gitidConfig_name+"\"")); err != nil {
-			log.Error().Err(err).Msgf("Failed adding Include to %q", baseConfig_path)
+
+		//TODO: is already included or not?
+		// include git-id.conf
+		if err := pkg.FileAppend(sshConfig_path, []byte("Include '"+gitidConfig_name+"'")); err != nil {
+			log.Error().Err(err).Msgf("Failed adding Include to %q", sshConfig_path)
 		}
 	},
 }

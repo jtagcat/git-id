@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"os"
+	"path"
 
 	"github.com/jtagcat/git-id/pkg"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -16,10 +18,8 @@ var (
 	gitidHeaderRemotes      = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{"Remotes", 0}}}
 	gitidSSHConfigRootXKeys = map[string]bool{"xheader": false}
 	gitidSSHConfigSubXKeys  = []string{"XGitConfig", "XDescription"}
-	gitidTLD                = "git-id" // foo.gh.git-id
-	remote                  = "origin"
-	sshConfig_parentdir     = "~/.ssh"
-	gitidConfig_name        = "git-id.conf"
+
+	remote = "origin"
 )
 
 // rootCmd is the base command, 'git id'
@@ -45,11 +45,26 @@ func Execute() {
 }
 
 var (
+	sshConfigDir     string
+	gitidConfig_name string
+	gitidTLD         string
+
 	flPath string
 )
 
 func init() {
 	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) //TODO: parse -vvv and --verbose=5 / --verbose=info
+
+	rootCmd.PersistentFlags().StringVar(&sshConfigDir, "ssh-config-dir", "", "empty for ~/.ssh")
+	if sshConfigDir == "" {
+		homedir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal().Err(err).Msg("--ssh-config-dir unset; can't get home directory")
+		}
+		sshConfigDir = path.Join(homedir, ".ssh")
+	}
+	rootCmd.PersistentFlags().StringVar(&gitidConfig_name, "gitid-config-name", "git-id.conf", "name of git-id managed configuration file")
+	rootCmd.PersistentFlags().StringVar(&gitidTLD, "gitid-tld", "git-id", "ident.remote.git-id ← TLD in remote hijacks")
 
 	rootCmd.PersistentFlags().StringVarP(&flPath, "", "C", "", "Act on path instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
 
