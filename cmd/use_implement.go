@@ -4,7 +4,6 @@ import (
 	"os"
 	"path"
 	"strconv"
-	"strings"
 
 	"github.com/jtagcat/git-id/pkg"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
@@ -23,6 +22,8 @@ var useCmd = &cobra.Command{
 		if len(args) != 1 {
 			log.Fatal().Str("flagcount", strconv.Itoa(len(args))).Msg("expected exactly one argument")
 		}
+		newSlug := args[0]
+
 		if !flChRemote && !flChWho {
 			log.Fatal().Msg("nothing to do")
 		}
@@ -33,30 +34,33 @@ var useCmd = &cobra.Command{
 			log.Fatal().Err(err).Str("remote", remote).Msg("getting git remote url")
 		}
 
-		cfgPath := path.Join(sshConfig_parentdir, gitidConfig_name)
+		cfgPath := path.Join(flSSHConfigDir, flGIConfig_name)
 		f, err := pkg.OpenFileExisting(cfgPath, os.O_RDONLY)
 		if err != nil {
 			log.Fatal().Err(err).Str("path", cfgPath).Msg("opening ssh config")
 		}
 		defer f.Close()
+
 		cfg, err := ssh_config.DecodeToRawXKeys(f, gitidSSHConfigRootXKeys, gitidSSHConfigSubXKeys)
 		if err != nil {
 			log.Fatal().Err(err).Msg("decoding ssh config")
 		}
 
-		urlParts := strings.Split(url.Host, ".")
-		tld := urlParts[len(urlParts)-1]
-		if tld == gitidTLD {
-			if len(urlParts) != 3 {
-				log.Fatal().Str("hostfound", url.Host).Msg("expected 3-part git-id hostname")
-			}
-			starHost, err := pkg.HostKeyword()
-		} else { // current url not git-id's
-			host, err := pkg.TLDbySubKV(cfg, gitidHeaderRemotes, "Hostname", url.Host, false)
-			if err != nil {
-				log.Fatal().Err(err).Str("domain", url.Host).Msg("getting git-id remote")
+		remotes, err := giRemotesFromAnyHost(cfg, url.Host)
+		//if err
+		//TODO: len(remotes) == 0
+		var matches int
+		for _, r := range remotes {
+			// get newUser.r.git-id
+			if true {
+				matches++
 			}
 		}
+		if matches == 0 {
+			log.Fatal().Str("identity", newSlug).Str("remote", url.Host).Msg("no git-id identity-remote pair matching current host found")
+		}
+
+		// we have
 
 		// ##### change remote url ##### (not same as clone)
 		// parse; check current git-ssh domain
@@ -94,6 +98,7 @@ var useCmd = &cobra.Command{
 	},
 }
 
+//TODO: allow specifying remote to switch to
 // ssh config fallback? is it possible to fallback, not parallely use ~/.ssh/config or sth?
 
 var (
@@ -105,4 +110,9 @@ func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.LocalFlags().BoolVar(&flChRemote, "remote", true, "Change remote (SSH) identity")
 	useCmd.LocalFlags().BoolVar(&flChWho, "who", true, "Change git identity (name,email)")
+}
+
+type stringWithIndex struct {
+	str   string
+	index int
 }
