@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/jtagcat/git-id/pkg"
+	"github.com/jtagcat/go-shared"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +35,7 @@ This enables default identities, and is currently the only supported setup.`,
 
 		//TODO: is already included or not?
 		// include git-id.conf
-		if err := pkg.FileAppend(sshConfig_path, []byte("Include '"+flGIConfig_name+"'")); err != nil {
+		if err := shared.FileAppend(sshConfig_path, []byte("Include '"+flGIConfig_name+"'")); err != nil {
 			log.Error().Err(err).Msgf("Failed adding Include to %q", sshConfig_path)
 		}
 	},
