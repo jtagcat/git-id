@@ -45,9 +45,9 @@ func Execute() {
 }
 
 var (
-	sshConfigDir     string
-	gitidConfig_name string
-	gitidTLD         string
+	flSSHConfigDir  string
+	flGIConfig_name string
+	flGI_TLD        string
 
 	flPath string
 )
@@ -55,16 +55,16 @@ var (
 func init() {
 	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) //TODO: parse -vvv and --verbose=5 / --verbose=info
 
-	rootCmd.PersistentFlags().StringVar(&sshConfigDir, "ssh-config-dir", "", "empty for ~/.ssh")
-	if sshConfigDir == "" {
+	rootCmd.PersistentFlags().StringVar(&flSSHConfigDir, "ssh-config-dir", "", "empty for ~/.ssh")
+	if flSSHConfigDir == "" {
 		homedir, err := os.UserHomeDir()
 		if err != nil {
 			log.Fatal().Err(err).Msg("--ssh-config-dir unset; can't get home directory")
 		}
-		sshConfigDir = path.Join(homedir, ".ssh")
+		flSSHConfigDir = path.Join(homedir, ".ssh")
 	}
-	rootCmd.PersistentFlags().StringVar(&gitidConfig_name, "gitid-config-name", "git-id.conf", "name of git-id managed configuration file")
-	rootCmd.PersistentFlags().StringVar(&gitidTLD, "gitid-tld", "git-id", "ident.remote.git-id ← TLD in remote hijacks")
+	rootCmd.PersistentFlags().StringVar(&flGIConfig_name, "gitid-config-name", "git-id.conf", "name of git-id managed configuration file")
+	rootCmd.PersistentFlags().StringVar(&flGI_TLD, "gitid-tld", "git-id", "ident.remote.git-id ← TLD in remote hijacks")
 
 	rootCmd.PersistentFlags().StringVarP(&flPath, "", "C", "", "Act on path instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
 

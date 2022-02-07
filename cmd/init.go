@@ -18,8 +18,8 @@ var initCmd = &cobra.Command{
 Moves ~/.ssh/config to ~/.ssh/global.conf.
 This enables default identities, and is currently the only supported setup.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		sshConfig_path := path.Join(sshConfigDir, "config")
-		gitidConfig_path := path.Join(sshConfigDir, gitidConfig_name)
+		sshConfig_path := path.Join(flSSHConfigDir, "config")
+		gitidConfig_path := path.Join(flSSHConfigDir, flGIConfig_name)
 
 		// init git-id.conf
 		if _, err := os.Stat(gitidConfig_path); err == fs.ErrNotExist {
@@ -35,7 +35,7 @@ This enables default identities, and is currently the only supported setup.`,
 
 		//TODO: is already included or not?
 		// include git-id.conf
-		if err := pkg.FileAppend(sshConfig_path, []byte("Include '"+gitidConfig_name+"'")); err != nil {
+		if err := pkg.FileAppend(sshConfig_path, []byte("Include '"+flGIConfig_name+"'")); err != nil {
 			log.Error().Err(err).Msgf("Failed adding Include to %q", sshConfig_path)
 		}
 	},
