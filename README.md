@@ -41,7 +41,7 @@ Git ───────────────────► SSH  ┌──�
                           ▼
                   ~/.ssh/git-id.conf
                     HOST work.gh.git-id ─► work_sk                                    Created with
-                    HOST    *.gh.git-id ─► github.com          https://github.com/lewish/asciiflow             
+                    HOST    *.gh.git-id ─► github.com          https://github.com/lewish/asciiflow
 ```
 
 So, `git-id` is here to implement basic git identity management without dependencies: something simple to use, something that just works when you need to push a commit from your work, other work, or h4ck3r account, to the same remote host.
