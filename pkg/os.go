@@ -39,3 +39,15 @@ func PWDIfEmpty(path string) (string, error) {
 	}
 	return "", errors.New("path unset, failed getting working directory: " + err.Error())
 }
+
+// os.Rename(), but newpath:fs.ErrExist
+func RenameNoOverwrite(oldpath, newpath string) error {
+	_, err := os.Stat(newpath)
+	if err == nil {
+		return fs.ErrExist
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return os.Rename(oldpath, newpath)
+	}
+	return err
+}
