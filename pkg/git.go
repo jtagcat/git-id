@@ -8,7 +8,7 @@ import (
 )
 
 func GitRemoteURLGet0(r *git.Repository, remote string) (*url.URL, error) {
-	urlString, err := r.RemoteURLGet(remote)
+	urlString, err := r.RemoteGetURL(remote)
 	if err != nil {
 		return nil, err
 	}
