@@ -7,7 +7,6 @@ import (
 
 	"github.com/jtagcat/git-id/pkg"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
-	"github.com/jtagcat/go-shared"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
@@ -36,7 +35,7 @@ var useCmd = &cobra.Command{
 		}
 
 		cfgPath := path.Join(flSSHConfigDir, flGIConfig_name)
-		f, err := shared.OpenFileExisting(cfgPath, os.O_RDONLY)
+		f, err := pkg.OpenFileExisting(cfgPath, os.O_RDONLY)
 		if err != nil {
 			log.Fatal().Err(err).Str("path", cfgPath).Msg("opening ssh config")
 		}

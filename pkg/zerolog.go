@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"github.com/gogs/git-module"
-	"github.com/jtagcat/go-shared"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -27,7 +26,7 @@ func GitOpen(path string) *git.Repository {
 	log.Debug().Str("git_version", v).Msg("")
 
 	// parse path
-	path, err = shared.PWDIfEmpty(path)
+	path, err = PWDIfEmpty(path)
 	if err != nil {
 		log.Fatal().Err(err).Msg("")
 	}
