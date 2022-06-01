@@ -32,11 +32,11 @@ Configuration is only applied — after setup, git-id is not needed.`,
 	//	Run: func(cmd *cobra.Command, args []string) {
 	//		statusCmd.Run(cmd, args)
 	//	},
-	//NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
+	// NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
 }
 
 func Execute() {
-	//TODO: DEV
+	// TODO: DEV
 	zerolog.SetGlobalLevel(zerolog.TraceLevel)
 	err := rootCmd.Execute()
 	if err != nil {
@@ -53,7 +53,7 @@ var (
 )
 
 func init() {
-	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) //TODO: parse -vvv and --verbose=5 / --verbose=info
+	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) // TODO: parse -vvv and --verbose=5 / --verbose=info
 
 	rootCmd.PersistentFlags().StringVar(&flSSHConfigDir, "ssh-config-dir", "", "empty for ~/.ssh")
 	if flSSHConfigDir == "" {
@@ -66,8 +66,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&flGIConfig_name, "gitid-config-name", "git-id.conf", "name of git-id managed configuration file")
 	rootCmd.PersistentFlags().StringVar(&flGI_TLD, "gitid-tld", "git-id", "ident.remote.git-id ← TLD in remote hijacks")
 
-	rootCmd.PersistentFlags().StringVarP(&flPath, "", "C", "", "Act on path instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
-
+	rootCmd.PersistentFlags().StringVarP(&flPath, "", "C", "", "Act on `path` instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
 }
 
 // NOTMVP: custom core.sshCommand additions

@@ -2,6 +2,8 @@ package ssh_config
 
 import (
 	"strings"
+
+	"github.com/minio/pkg/wildcard"
 )
 
 // splits []RawTopLevel to up to 3, based on start/end header key-values (headers are usually comments, use xkeys).
@@ -61,6 +63,7 @@ func rawValuesMatch(a, b []RawValue) bool { // similar to EqualFoldSlice
 	}
 	return true
 }
+
 func oneRawValuesMatch(a []RawValue, b []string) bool {
 	if len(a) != len(b) {
 		return false
@@ -87,4 +90,89 @@ func RootBySubKV(cfg []RawTopLevel, rootKey, subKey string, subValue []string) (
 		}
 	}
 	return scfg
+}
+
+// []RawTopLevel
+
+func rawValuesToStrSlice(raw []RawValue) (values []string) {
+	for _, w := range raw {
+		values = append(values, w.Value)
+	}
+	return values
+}
+
+// if any ! matches, return false
+// jfyi Host hello,world foo is "hello,world", "foo"
+func HostMatches(raw []string, search string) (matches bool) {
+	locaseSearch := strings.ToLower(search)
+	for _, w := range raw {
+		if strings.HasPrefix(w, "!") { // negating pattern
+			if wildcard.Match(strings.ToLower(w[1:]), locaseSearch) {
+				// negating pattern matches
+				return false // exit early
+			}
+		} else if !matches {
+			matches = wildcard.Match(strings.ToLower(w), locaseSearch)
+			// if match found, continue searching for negating patterns
+		}
+	}
+	return matches
+}
+
+var matchKeywords = []string{"canonical", "exec", "host", "originalhost", "user", "localuser"}
+
+// specials: all, final
+
+// err: nil, ErrInvalidValue
+// func buildMatchTree(raw []string) (tree []RawKeyword, err error) {
+// 	var keywordActive bool
+// 	for _, w := range raw {
+// 		// in "Match=key=value,bar don" / "Match key=value,bar don"
+// 		// raw is {"key=value,bar", "don"}, w is "key=value,bar", d is Key: "key", []values:{"value", "bar"}
+// 		// quotes and escapes are already handled by lower level decode/encode
+// 		d, _ := decodeLine(w)
+// 		if d.Comment != "" {
+// 			// when parent of nested decode is quoted
+// 			d.Values = append(d.Values, RawValue{d.Comment, 0})
+// 		}
+
+// 		if !d.EncodingKVSeperatorIsEquals {
+// 			if d.Values != nil {
+// 				// when user gives "key=value,bar don" or
+// 				// "key value,bar", "don" or "key value bar", "don" (all invalid)
+// 				// instead of "key=value,bar", "don"
+// 				return nil, fmt.Errorf("value must not have unquoted spaces in them, "+
+// 					"it should have been decoded by lower-stage decoder "+
+// 					"or use '=' as a subkey-subvalue denominator: %w", ErrInvalidValue)
+// 			}
+// 			// valueless keyword
+// 			//TODO:
+// 			//
+// 			keywordActive = true
+// 			continue
+// 		}
+// 		// valueful keyword
+
+// 	}
+// 	return tree, nil
+// }
+
+// func MatchSubValueMatches(raw []string, subkey, search string) bool {
+// 	for i, w := range raw {
+// 		k, _ := decodeLine(w)
+// 		if k.Comment != "" {
+// 			continue // invalid, can't have '#' in a single value, it should already be parsed
+// 		}
+// 		if strings.EqualFold(k.Key, subkey) {
+// 			if k.EncodingKVSeperatorIsEquals {
+// 				// k.Values is csvStringSlice
+// 			} else {
+
+// 			}
+// 		}
+// 	}
+// }
+
+func MatchMatches(raw []string, search string) bool {
+	return false
 }

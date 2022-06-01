@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+// for sake of documentation
+type RootWords struct {
+	Host    *[]string `minArgs:"1" maxArgs:"-2" definition:"stringSlice"`
+	Match   *[]string `minArgs:"1" maxArgs:"-2" definition:"match"` // [] of string=csvStringSlice, or string (key only)
+	Include *[]string `minArgs:"1" maxArgs:"-2" definition:"stringSlice"`
+}
+
 // https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz readconf.c#984: switch (opcode) {
 type Keywords struct {
 	// minArgs, maxArgs: nzint (disable check: negative) of arguments demanded by OpenSSH

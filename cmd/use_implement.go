@@ -46,16 +46,17 @@ var useCmd = &cobra.Command{
 			log.Fatal().Err(err).Msg("decoding ssh config")
 		}
 
-		remotes, err := giRemotesFromAnyHost(cfg, url.Host)
-		//if err
-		//TODO: len(remotes) == 0
+		// remotes, err :=
+		giRemotesFromAnyHost(cfg, url.Host)
+		// if err
+		// TODO: len(remotes) == 0
 		var matches int
-		for _, r := range remotes {
-			// get newUser.r.git-id
-			if true {
-				matches++
-			}
-		}
+		// for _, r := range remotes {
+		// 	// get newUser.r.git-id
+		// 	if true {
+		// 		matches++
+		// 	}
+		// }
 		if matches == 0 {
 			log.Fatal().Str("identity", newSlug).Str("remote", url.Host).Msg("no git-id identity-remote pair matching current host found")
 		}
@@ -77,7 +78,7 @@ var useCmd = &cobra.Command{
 
 		if flChRemote {
 			// url.Host =
-			r.RemoteURLSetFirst(remote, url.String())
+			// r.RemoteURLSetFirst(remote, url.String())
 		}
 		if flChWho {
 			// for _, confopt := range [][]string{{"user.name", ident[name]}, {"user.email", ident[email]}, {"user.signingKey", ident[sigkey]}} {
@@ -98,7 +99,7 @@ var useCmd = &cobra.Command{
 	},
 }
 
-//TODO: allow specifying remote to switch to
+// TODO: allow specifying remote to switch to
 // ssh config fallback? is it possible to fallback, not parallely use ~/.ssh/config or sth?
 
 var (
