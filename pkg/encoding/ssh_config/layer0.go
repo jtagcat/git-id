@@ -74,7 +74,7 @@ runereader:
 				currentString += "\\\\" // 2 backslashes
 				continue
 			}
-			pos += 1 // skip next rune
+			pos++ // skip next rune
 			continue
 		}
 
@@ -173,7 +173,7 @@ func EncodeValue(values []RawValue, comment string) (encoded string, err error) 
 					err = ErrWarnSingleBackslashTransformed
 					continue
 				}
-				pos += 1
+				pos++
 				continue
 			}
 			encoded += string(rune)
