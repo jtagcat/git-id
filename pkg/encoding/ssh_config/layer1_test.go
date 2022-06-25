@@ -74,10 +74,12 @@ func TestDecodeToRaw(t *testing.T) {
 		{Comment: " Root comment"},
 	}
 
-	rootXKMap := map[string]bool{"xheader": false}
-	subXKeys := []string{"XGitConfig", "XDescription"}
+	o := Opts{
+		RootXKeys: map[string]bool{"xheader": false},
+		SubXKeys:  []string{"XGitConfig", "XDescription"},
+	}
 
-	got, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKeys)
+	got, err := Decode(o, exampleConfig())
 	assert.Nil(t, err)
 	fmt.Printf("%v", got)
 	assert.Equal(t, want, got)
@@ -86,14 +88,17 @@ func TestDecodeToRaw(t *testing.T) {
 func TestEncodeToRaw(t *testing.T) {
 	want := exampleConfig()
 
-	rootXKMap := map[string]bool{"xheader": false}
-	subXKeys := []string{"XGitConfig", "XDescription"}
+	o := Opts{
+		RootXKeys: map[string]bool{"xheader": false},
+		SubXKeys:  []string{"XGitConfig", "XDescription"},
+		Indent:    "  ",
+	}
 
-	cfg, err := DecodeToRawXKeys(exampleConfig(), rootXKMap, subXKeys)
+	cfg, err := Decode(o, exampleConfig())
 	assert.Nil(t, err)
 
 	var got bytes.Buffer
-	err = EncodeFromRawXKeys(cfg, &got, "  ", rootXKMap, subXKeys)
+	err = Encode(o, cfg, &got)
 	assert.Nil(t, err)
 	assert.Equal(t, want, strings.NewReader(got.String()))
 }

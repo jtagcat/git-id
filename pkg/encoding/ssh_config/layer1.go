@@ -5,20 +5,40 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"reflect"
 	"strings"
 )
 
-// wrapper for usage without xkeys
-func DecodeToRaw(data io.Reader) ([]RawTopLevel, error) {
-	rootXKeyMap := make(map[string]bool)
-	return DecodeToRawXKeys(data, rootXKeyMap, []string{})
+type Config []RawTopLevel
+
+type Opts struct {
+	// (optional) xkeys are custom keys nested inside comments,
+	// extending the configuration specification.
+
+	// valid root-level xkeys, at root level they have no parent
+	RootXKeys map[string]bool // bool: may have children xkeys
+
+	// valid children xkeys, housed under a root/parent (x)key
+	SubXKeys []string
+
+	// Indentation to use when encoding
+	Indent string // standard: "  "
 }
 
-// xkeys: Custom keys nested inside comments. [macro C]
-// rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
-// subXKeys: list of sub-level xkeys
-func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []string) ([]RawTopLevel, error) {
+func OpenConfig(o Opts, path string) (Config, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	r := bufio.NewReader(f)
+
+	return Decode(o, r)
+}
+
+// Decode from ssh_config to Config
+func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 	var deep bool           // under a host or match
 	var includeIsChild bool // if any other root header has been encountered before include, it is a subkey
 	var cfg []RawTopLevel   // tree is flusehd to cfg
@@ -30,7 +50,7 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []st
 		keywordKMap[strings.ToLower(keywordType.Field(i).Name)] = false
 	}
 	subXKeyMap := make(map[string]bool)
-	for _, k := range subXKeys {
+	for _, k := range o.SubXKeys {
 		subXKeyMap[strings.ToLower(k)] = false
 	}
 
@@ -51,7 +71,7 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []st
 		if line.Key == "" && line.Comment != "" {
 			locaseCmt := strings.ToLower(line.Comment)
 
-			for rk, mayHaveChildren := range rootXKeyMap {
+			for rk, mayHaveChildren := range o.RootXKeys {
 				if strings.HasPrefix(locaseCmt, rk) {
 					rootXKey = true
 					rootXKeyMayHaveChildren = mayHaveChildren
@@ -154,17 +174,8 @@ func DecodeToRawXKeys(data io.Reader, rootXKeyMap map[string]bool, subXKeys []st
 	return cfg, scanner.Err()
 }
 
-// wrapper for usage without xkeys
-func EncodeFromRaw(cfg []RawTopLevel, data io.Writer, indent string) error {
-	rootXKeyMap := make(map[string]bool)
-	return EncodeFromRawXKeys(cfg, data, indent, rootXKeyMap, []string{})
-}
-
-// indent = "  " is reccommended
-// xkeys: Custom keys nested inside comments. [macro C]
-// rootXKeys: list of root-level xkeys MUST BE LOWERCASE; bool: may have children (recommend default: true)
-// subXKeys: list of sub-level xkeys
-func EncodeFromRawXKeys(cfg []RawTopLevel, data io.Writer, indent string, rootXKeyMap map[string]bool, subXKeys []string) error {
+// Encode from ssh_config to Config
+func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 	keywordType := reflect.TypeOf(Keywords{})
 	keywordKMap := make(map[string]bool)
 	for i := 0; i < keywordType.NumField(); i++ {
@@ -173,7 +184,7 @@ func EncodeFromRawXKeys(cfg []RawTopLevel, data io.Writer, indent string, rootXK
 
 	// xKeys are encoded in this func because indenting
 	subXKeyMap := make(map[string]bool)
-	for _, k := range subXKeys {
+	for _, k := range o.SubXKeys {
 		subXKeyMap[strings.ToLower(k)] = false
 	}
 
@@ -186,7 +197,7 @@ func EncodeFromRawXKeys(cfg []RawTopLevel, data io.Writer, indent string, rootXK
 		locaseRK := strings.ToLower(r.Key)
 		var enline string
 
-		_, isRootXKey := rootXKeyMap[locaseRK]
+		_, isRootXKey := o.RootXKeys[locaseRK]
 		if isRootXKey || r.Key == "" || locaseRK == "host" || locaseRK == "match" || locaseRK == "include" && !includeIsChild {
 			if !isRootXKey && locaseRK != "" && locaseRK != "include" {
 				includeIsChild = true
@@ -213,7 +224,7 @@ func EncodeFromRawXKeys(cfg []RawTopLevel, data io.Writer, indent string, rootXK
 					}
 				}
 
-				enline, warn = encodeLine(indent, c)
+				enline, warn = encodeLine(o.Indent, c)
 				w.WriteString(enline + "\n")
 			}
 			continue
