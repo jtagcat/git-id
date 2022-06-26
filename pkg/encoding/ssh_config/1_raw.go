@@ -26,7 +26,8 @@ type RawTopLevel struct {
 //
 // Host, Match and Include are hardcoded since there are only 3, and Include means different things in different contexts.
 func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
-	var deep bool           // under a host or match
+	var deep bool           // under a host or match or rootxkey
+	var deepXRoot bool      // under a rootxkey
 	var includeIsChild bool // if any other root header has been encountered before include, it is a subkey
 	var cfg []RawTopLevel   // tree is flusehd to cfg
 	var tree RawTopLevel    // current level
@@ -83,6 +84,7 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 			}
 		}
 
+		// comments find-your-parent
 		if line.Key == "" {
 			if !deep { // already at TLD level
 				if i != 1 { // flush previous tree
@@ -95,17 +97,22 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 			continue // would-be switch statement (emulating it), if not for the xkey check
 		}
 
+		// parse a root tree, validate key
 		locaseKey := strings.ToLower(line.Key)
-		if rootXKey || locaseKey == "host" || locaseKey == "match" || locaseKey == "include" && !includeIsChild {
+		if rootXKey || locaseKey == "host" || locaseKey == "match" || (locaseKey == "include" && !includeIsChild) {
 			if !rootXKey && locaseKey != "include" {
 				includeIsChild = true // include is a subkey after host/match is encountered
 			}
 
-			if locaseKey == "include" || rootXKey && !rootXKeyMayHaveChildren {
-				deep = false
+			if rootXKeyMayHaveChildren {
+				deepXRoot = true
+			}
+			if locaseKey == "include" || (rootXKey && !rootXKeyMayHaveChildren) {
+				deep, deepXRoot = false, false
 			} else {
 				deep = true
 			}
+
 			if i != 1 { // handle attaching comments to trees [macro A]
 				for _, c := range prevLineComment { // i != 1 anyway
 					if c == "" {
@@ -124,8 +131,10 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 			}
 			// create a new tree (previous already flushed)
 			tree = RawTopLevel{Key: line.Key, Values: line.Values, Comment: line.Comment, EncodingKVSeperatorIsEquals: line.EncodingKVSeperatorIsEquals}
-			continue // emulating switch statement
+			continue
 		}
+
+		// not rootkey, might be subkey
 
 		// any other key will be subkey (switch: default)
 		if !deep {
@@ -139,6 +148,9 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 		prevLineComment = []string{}
 
 		if !subXKey {
+			if deepXRoot {
+				return cfg, fmt.Errorf("while encoding %q: %w", i, ErrValidSubkeyAfterXRoot)
+			}
 			// basic 'does (non-x)key exist' [macro D]
 			if _, ok := keywordKMap[locaseKey]; !ok {
 				return cfg, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyword)
@@ -187,7 +199,7 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 		var enline string
 
 		_, isRootXKey := o.RootXKeys[locaseRK]
-		if isRootXKey || r.Key == "" || locaseRK == "host" || locaseRK == "match" || locaseRK == "include" && !includeIsChild {
+		if isRootXKey || r.Key == "" || locaseRK == "host" || locaseRK == "match" || (locaseRK == "include" && !includeIsChild) {
 			if !isRootXKey && locaseRK != "" && locaseRK != "include" {
 				includeIsChild = true
 			}
@@ -208,7 +220,11 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 					c = RawKeyword{}
 					c.Comment, _ = encodeLine("", x)
 
-				} else if c.Key != "" { // basic 'does (non-x)key exist' [macro D]
+				} else if c.Key != "" { // not comment
+					if isRootXKey {
+						return fmt.Errorf("while encoding %q: %w", c.Key, ErrValidSubkeyAfterXRoot)
+					}
+					// basic 'does (non-x)key exist' [macro D]
 					if _, ok := keywordKMap[locaseCK]; !ok {
 						return fmt.Errorf("while encoding %q: %w", c.Key, ErrInvalidKeyword)
 					}
@@ -219,7 +235,7 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 			}
 			continue
 		}
-		return fmt.Errorf("while encoding %q: %w", r.Key, ErrInvalidKeyword)
+		return fmt.Errorf("while encoding TLD %q: %w", r.Key, ErrInvalidKeyword)
 	}
 	return warn
 }

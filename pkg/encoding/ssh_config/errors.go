@@ -12,11 +12,11 @@ var (
 	ErrWarnSingleBackslashTransformed = errors.New("1 or more single backslashes changed to 2 backslashes since OpenSSH ssh_config does this (this always happens: st\\ring → st\\\\ring)")
 	ErrValidSubkeyAfterXRoot          = errors.New("non-root non-xkeys are not allowed after a root xkey until the next root non-xkey")
 	ErrNotImplemented                 = errors.New("not implemented")
-	ErrImpossible                     = errors.New("situation should be impossible, likely human error, please report")
+	// ErrImpossible                     = errors.New("situation should be impossible, likely human error, please report")
 )
 
 // encoding: indentchar
 
-//func typeCheck()
+// func typeCheck()
 
 // func: validate written config at runtime

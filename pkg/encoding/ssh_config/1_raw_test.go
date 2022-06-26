@@ -109,4 +109,20 @@ func TestEncodeRawRoundtrip(t *testing.T) {
 	assert.Equal(t, want, strings.NewReader(got.String()))
 }
 
-// TODO: test subkey under subxkey
+func TestBadConfigUnderX(t *testing.T) {
+	o, want := Opts{
+		RootXKeys: map[string]bool{
+			"xheader": true,
+		},
+		Indent: "  ",
+	},
+		strings.NewReader(
+			"Host hello\n"+
+				"  IdentityFile test\n"+
+				"\n"+
+				"#XHeader\n"+
+				"  IdentityFile invalid\n")
+
+	_, err := Decode(o, want)
+	assert.ErrorIs(t, err, ErrValidSubkeyAfterXRoot)
+}
