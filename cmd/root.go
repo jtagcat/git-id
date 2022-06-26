@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
 )
 
 var (
@@ -23,14 +20,7 @@ var (
 	remote = "origin"
 )
 
-func Execute(args []string) {
-	if err := app.Run(args); err != nil {
-		log.Fatalln(err)
-		zap.L().Fatal("main", zap.Error(err))
-	}
-}
-
-var app = &cli.App{
+var App = &cli.App{
 	Name:  "git-id",
 	Usage: "Git identity management",
 	Flags: []cli.Flag{

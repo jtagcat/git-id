@@ -1,11 +1,14 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/jtagcat/git-id/cmd"
 )
 
 func main() {
-	cmd.Execute(os.Args)
+	if err := cmd.App.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }

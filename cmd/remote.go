@@ -23,7 +23,7 @@ var cmdRemote = &cli.Command{
 // git id remote add
 var cmdRemoteAdd = &cli.Command{
 	Name:      "add",
-	Usage:     "Add an remote",
+	Usage:     "Add a remote",
 	ArgsUsage: "git-id remote add <remote slug> <actual host> [-d description]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{Name: "description", Aliases: []string{"d"}, Usage: "git-id-only, memory refresher"},

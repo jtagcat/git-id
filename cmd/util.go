@@ -1,8 +1,9 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
-	"go.uber.org/zap"
 )
 
 // 	hostParts := strings.Split(host, ".")
@@ -69,16 +70,16 @@ import (
 // 	// if already exists
 // }
 
-func gidOpenConfig(name string) *ssh_config.Config {
+func gidOpenConfig(path string) *ssh_config.Config {
 	c, new, err := ssh_config.OpenConfig(ssh_config.Opts{
 		SubXKeys: []string{
 			"XDescription",
 			"XGitConfig",
 		},
 		Indent: "  ",
-	}, name)
+	}, path)
 	if err != nil {
-		zap.L().Fatal("couldnt open config", zap.String("path", name), zap.Error(err))
+		log.Fatalf("couldnt open config at %s: %e", path, err)
 	}
 
 	if !new {
@@ -88,20 +89,20 @@ func gidOpenConfig(name string) *ssh_config.Config {
 	// init
 	c.GID_InsertRootComment(gitidHeaderInfo)
 	c.Write() // before including
-	zap.L().Info("created config file", zap.String("path", name))
+	log.Printf("created config file at %s", path)
 
 	// import
 	u, _, err := ssh_config.OpenConfig(ssh_config.Opts{Indent: "  "}, userSSHConfigFile)
 	if err != nil {
-		zap.L().Fatal("couldn't open user config", zap.String("path", userSSHConfigFile))
+		log.Fatalf("couldnt open user config at %s: %e", userSSHConfigFile, err)
 	}
 
 	// search
-	if i, _ := u.GID_RootObjectCount("import", []string{name}, false); i == 0 {
-		u.GID_PreappendInclude(name) // ew
+	if i, _ := u.GID_RootObjectCount("import", []string{path}, false); i == 0 {
+		u.GID_PreappendInclude(path) // ew
 		u.Write()
 	}
-	zap.L().Info("included config in ssh_config", zap.String("path", userSSHConfigFile))
+	log.Printf("included config in ssh_config at %s", path)
 
 	return c
 }
