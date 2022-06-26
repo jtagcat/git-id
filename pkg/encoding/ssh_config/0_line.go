@@ -78,9 +78,15 @@ func DecodeValue(s string) (strings []RawValue, comment string, err error) {
 	// func inspired by https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889 and strings.FieldsFunc()
 	currentString, quoted := "", 0
 	maxPos := utf8.RuneCountInString(s) - 1 // prevents index (of next rune) out of range
+	skipSignal := false
 
 runereader:
 	for pos, rune := range s {
+		if skipSignal {
+			skipSignal = false
+			continue
+		}
+
 		if rune == '\\' { // single backslash
 			if pos == maxPos { // last rune
 				currentString += "\\\\" // 2 backslashes
@@ -98,7 +104,7 @@ runereader:
 				currentString += "\\\\" // 2 backslashes
 				continue
 			}
-			pos++ // skip next rune
+			skipSignal = true // skip next rune
 			continue
 		}
 
@@ -184,7 +190,13 @@ func EncodeValue(values []RawValue, comment string) (encoded string, err error) 
 			encoded += "\""
 		}
 
+		skipSignal := false
 		for pos, rune := range v.Value {
+			if skipSignal {
+				skipSignal = false
+				continue
+			}
+
 			if rune == '\\' { // single backslash
 				switch string(v.Value[pos+1]) {
 				case "'":
@@ -202,7 +214,7 @@ func EncodeValue(values []RawValue, comment string) (encoded string, err error) 
 					err = ErrWarnSingleBackslashTransformed
 					continue
 				}
-				pos++
+				skipSignal = true
 				continue
 			}
 			encoded += string(rune)

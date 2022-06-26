@@ -17,6 +17,7 @@ func TestDecodeValue(t *testing.T) {
 		"Inv'alid":        {nil, "", ErrInvalidQuoting},
 		"\"":              {nil, "", ErrInvalidQuoting},
 		"'":               {nil, "", ErrInvalidQuoting},
+		"Esc\\'quot":      {[]RawValue{{"Esc'quot", 0}}, "", nil}, //: \'
 		"\"Valid\"":       {[]RawValue{{"Valid", 2}}, "", nil},
 		"\"V'alid\"":      {[]RawValue{{"V'alid", 2}}, "", nil},
 		"String1 String2": {[]RawValue{{"String1", 0}, {"String2", 0}}, "", nil},
