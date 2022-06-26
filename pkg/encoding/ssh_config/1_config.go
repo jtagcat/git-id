@@ -34,19 +34,19 @@ type Opts struct {
 func OpenConfig(o Opts, name string) (*Config, bool, error) {
 	path, err := homedir.Expand(name)
 	if err != nil {
-		return &Config{}, false, err
+		return nil, false, err
 	}
 
 	var init bool
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		init = true
 	} else if err != nil {
-		return &Config{}, false, fmt.Errorf("couldn't stat config at %s: %w", path, err)
+		return nil, false, fmt.Errorf("couldn't stat config at %s: %w", path, err)
 	}
 
 	f, err := os.Open(path)
 	if err != nil {
-		return &Config{}, init, err
+		return nil, init, fmt.Errorf("couldn't open config file at %s: %w", path, err)
 	}
 	defer f.Close()
 

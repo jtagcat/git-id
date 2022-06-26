@@ -61,12 +61,16 @@ var cmdRemoteAdd = &cli.Command{
 	},
 }
 
-var flDescription string
 
-// func init() {
-// 	addRemoteCmd.LocalFlags().StringVarP(&flDescription, "description", "d", "", "git-id-only, memory refresher")
-// }
-
+var cmdRemoteAdd = &cli.Command{
+	Name:      "add",
+	Usage:     "Add an remote",
+	ArgsUsage: "git-id remote add <remote slug> <actual host> [-d description]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{Name: "description", Aliases: []string{"d"}, Usage: "git-id-only, memory refresher"},
+		&cli.PathFlag{Name: "config", Value: "~/.ssh/git-id.conf", Usage: "path to git-id config file"},
+	},
+	Action: func(ctx *cli.Context) error {
 // git id remote rm: NOMVP
 var rmRemoteCmd = &cobra.Command{
 	Use:   "rm",

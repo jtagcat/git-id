@@ -8,7 +8,6 @@ package cmd
 //
 // "github.com/jtagcat/git-id/pkg"
 // "github.com/jtagcat/git-id/pkg/encoding/ssh_config"
-// "github.com/rs/zerolog/log"
 // "github.com/spf13/cobra"
 // )
 //

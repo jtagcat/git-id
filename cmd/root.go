@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/urfave/cli/v2"
+	"go.uber.org/zap"
 )
 
 var (
@@ -18,12 +19,14 @@ var (
 	// hardcodes
 	flTLD             = "git-id"
 	userSSHConfigFile = "~/.ssh/config"
-	remote            = "origin"
+
+	remote = "origin"
 )
 
 func Execute(args []string) {
 	if err := app.Run(args); err != nil {
 		log.Fatalln(err)
+		zap.L().Fatal("main", zap.Error(err))
 	}
 }
 
@@ -46,7 +49,6 @@ var (
 )
 
 // func init() {
-// 	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) // TODO: parse -vvv and --verbose=5 / --verbose=info
 // 	rootCmd.PersistentFlags().StringVarP(&flActPath, "", "C", "", "Act on `path` instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
 // }
 
