@@ -96,7 +96,7 @@ func gidOpenConfig(name string) *ssh_config.Config {
 	}
 
 	// search
-	if i, _ := u.GID_RootObjectCount("import", []string{name}); i == 0 {
+	if i, _ := u.GID_RootObjectCount("import", []string{name}, false); i == 0 {
 		u.GID_PreappendInclude(name) // ew
 		u.Write()
 	}

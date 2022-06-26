@@ -13,15 +13,13 @@ func (c *Config) GID_PreappendInclude(i string) {
 		c.cfg...)
 }
 
-//
-//
-
 // WARN: made _only_ for git-id, may break
-// firstsSecondValue: 2nd value of first match
-func (c *Config) GID_RootObjectCount(key string, values []string) (matches int, secondValues []string) {
+// secondValues: 2nd value of matches
+// suffix: value is handled as a suffix
+func (c *Config) GID_RootObjectCount(key string, values []string, wildcard bool) (matches int, secondValues []string) {
 	for _, root := range c.cfg {
 		if strings.EqualFold(root.Key, key) &&
-			valuesMatch(root.Values, values) {
+			valuesMatch(root.Values, values, wildcard) {
 
 			secondValues = append(secondValues, root.Values[1].Value)
 			matches++
@@ -31,15 +29,23 @@ func (c *Config) GID_RootObjectCount(key string, values []string) (matches int, 
 }
 
 // order and len() matters, "" means ignore
-func valuesMatch(against []RawValue, values []string) bool {
+// suffix: value is handled as a suffix
+func valuesMatch(against []RawValue, values []string, suffix bool) bool {
 	if len(against) != len(values) {
 		return false
 	}
 
 	for i, a := range against {
-		if values[i] != "" &&
-			!strings.EqualFold(a.Value, values[i]) {
-			return false
+		if values[i] != "" {
+			if suffix {
+				if !strings.HasSuffix(strings.ToLower(a.Value), strings.ToLower(values[i])) {
+					return false
+				}
+			}
+
+			if !strings.EqualFold(a.Value, values[i]) {
+				return false
+			}
 		}
 	}
 	return true

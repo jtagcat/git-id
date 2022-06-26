@@ -6,7 +6,6 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/gogs/git-module v1.6.0
 	github.com/minio/pkg v1.1.24
-	github.com/rs/zerolog v1.26.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
 	github.com/whilp/git-urls v1.0.0

@@ -5,7 +5,6 @@ import (
 
 	valid "github.com/asaskevich/govalidator"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
-	"github.com/spf13/cobra"
 	"github.com/urfave/cli/v2"
 )
 
@@ -49,7 +48,7 @@ var cmdRemoteAdd = &cli.Command{
 
 		c := gidOpenConfig(ctx.String("config"))
 
-		if i, secondValues := c.GID_RootObjectCount("Host", []string{fullSlug}); i > 0 {
+		if i, secondValues := c.GID_RootObjectCount("Host", []string{fullSlug}, false); i > 0 {
 			return fmt.Errorf("a remote with the slug %s already exists: %s", fullSlug, secondValues)
 		}
 
@@ -61,33 +60,35 @@ var cmdRemoteAdd = &cli.Command{
 	},
 }
 
-
-var cmdRemoteAdd = &cli.Command{
-	Name:      "add",
-	Usage:     "Add an remote",
-	ArgsUsage: "git-id remote add <remote slug> <actual host> [-d description]",
+var cmdRemoteRemove = &cli.Command{
+	Name:      "rm",
+	Usage:     "Remove a remote",
+	ArgsUsage: "git-id remote rm <remote slug> [--recursive]",
 	Flags: []cli.Flag{
-		&cli.StringFlag{Name: "description", Aliases: []string{"d"}, Usage: "git-id-only, memory refresher"},
+		&cli.StringFlag{Name: "recursive", Aliases: []string{"r", "R"}, Usage: "remove remote and associated identities recursively"},
 		&cli.PathFlag{Name: "config", Value: "~/.ssh/git-id.conf", Usage: "path to git-id config file"},
 	},
 	Action: func(ctx *cli.Context) error {
-// git id remote rm: NOMVP
-var rmRemoteCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove an remote",
-	Long: `Usage: git-id remote rm <remote slug>
-	Example: git-id remote rm gh`,
-	RunE: func(_ *cobra.Command, args []string) error {
-		if len(args) != 1 {
+		//// ARGS ////
+		args := ctx.Args()
+		if args.Len() != 1 {
 			return fmt.Errorf("expected exactly 1 argument")
 		}
-		fullSlug := fmt.Sprintf("*.%s.%s", args[0], flTLD)
+
+		slug := args.First()
 
 		c := gidOpenConfig(flConfigPath)
 
-		if i, _ := c.GID_RootObjectCount("Host", []string{fullSlug}); i == 0 {
+		fullSlug := fmt.Sprintf("*.%s.%s", slug, flTLD)
+		if i, _ := c.GID_RootObjectCount("Host", []string{fullSlug}, false); i == 0 {
 			return fmt.Errorf("a remote with the slug %s does not exist", fullSlug)
 		}
+
+		// get children
+
+		// refuse
+
+		// remove
 
 		// if ok := c.GIDRootObjectRemove()
 		return fmt.Errorf("not implemented")
