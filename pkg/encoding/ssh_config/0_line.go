@@ -52,7 +52,7 @@ func encodeLine(indent string, rkw RawKeyword) (string, error) {
 	}
 	keyPart := indent
 
-	if rkw.Key != "" {
+	if rkw.Key != "" && rkw.Values != nil {
 		keyPart += rkw.Key
 		if rkw.EncodingKVSeperatorIsEquals {
 			keyPart += "="
@@ -74,9 +74,9 @@ type RawValue struct {
 // does not know of types
 //
 // possible errors: nil, errInvalidQuoting
-func DecodeValue(s string) (values []RawValue, comment string, err error) {
+func DecodeValue(s string) (strings []RawValue, comment string, err error) {
 	// func inspired by https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889 and strings.FieldsFunc()
-	strings, currentString, quoted := []RawValue{}, "", 0
+	currentString, quoted := "", 0
 	maxPos := utf8.RuneCountInString(s) - 1 // prevents index (of next rune) out of range
 
 runereader:

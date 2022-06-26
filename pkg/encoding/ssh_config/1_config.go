@@ -50,10 +50,14 @@ func (c *Config) Write() error {
 		return err
 	}
 
-	err = Encode(c.o, c.cfg, bufio.NewWriter(f))
-	if err != nil {
+	w := bufio.NewWriter(f)
+
+	if err := Encode(c.o, c.cfg, w); err != nil {
 		return err
 	}
 
+	if err := w.Flush(); err != nil {
+		return err
+	}
 	return f.CloseAtomicallyReplace()
 }

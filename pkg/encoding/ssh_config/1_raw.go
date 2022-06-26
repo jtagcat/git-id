@@ -64,14 +64,16 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 					rootXKeyMayHaveChildren = mayHaveChildren
 				}
 			}
-			for sk := range subXKeyMap {
-				if strings.HasPrefix(locaseCmt, sk) {
-					subXKey = true
+			if !rootXKey {
+				for sk := range subXKeyMap {
+					if strings.HasPrefix(locaseCmt, sk) {
+						subXKey = true
+					}
 				}
 			}
 
 			if rootXKey || subXKey { // parse xkey comment to key
-				line, err = decodeLine(strings.ToValidUTF8(line.Comment, "")) // [macro B]
+				line, err = decodeLine(line.Comment) // [macro B]
 				if errors.Is(err, ErrInvalidQuoting) {
 					err = fmt.Errorf("while parsing xkey on line %d: %w", i, err)
 				}
@@ -189,16 +191,17 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 			if !isRootXKey && locaseRK != "" && locaseRK != "include" {
 				includeIsChild = true
 			}
+
+			rc := r // copy for rootobj reset + children looping
 			if isRootXKey {
-				x := r
 				r = RawTopLevel{}
-				r.Comment, _ = encodeLine("", RawKeyword{x.Key, x.Values, x.Comment, x.EncodingKVSeperatorIsEquals})
+				r.Comment, _ = encodeLine("", RawKeyword{rc.Key, rc.Values, rc.Comment, rc.EncodingKVSeperatorIsEquals})
 			}
 
 			enline, warn = encodeLine("", RawKeyword{r.Key, r.Values, r.Comment, r.EncodingKVSeperatorIsEquals})
 			w.WriteString(enline + "\n")
 
-			for _, c := range r.Children {
+			for _, c := range rc.Children {
 				locaseCK := strings.ToLower(c.Key)
 				if _, isSubXKey := subXKeyMap[locaseCK]; isSubXKey {
 					x := c
