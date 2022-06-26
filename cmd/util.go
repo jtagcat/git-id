@@ -5,12 +5,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// // nil, fs.ErrInvalid
-// func giRemotesFromAnyHost(cfg []ssh_config.RawTopLevel, host string) (remotes []string, err error) {
-// 	if host == "" {
-// 		return nil, fmt.Errorf("%w: host is empty", fs.ErrInvalid)
-// 	}
-
 // 	hostParts := strings.Split(host, ".")
 // 	tld := hostParts[len(hostParts)-1]
 // 	if tld == flGI_TLD { // iz already git-id
@@ -84,7 +78,7 @@ func gidOpenConfig(name string) *ssh_config.Config {
 		Indent: "  ",
 	}, name)
 	if err != nil {
-		zap.L().Error("couldnt open config", zap.String("path", name), zap.Error(err))
+		zap.L().Fatal("couldnt open config", zap.String("path", name), zap.Error(err))
 	}
 
 	if !new {
@@ -98,11 +92,11 @@ func gidOpenConfig(name string) *ssh_config.Config {
 	// import
 	u, _, err := ssh_config.OpenConfig(ssh_config.Opts{Indent: "  "}, userSSHConfigFile)
 	if err != nil {
-		zap.L().Error("couldn't open user config", zap.String("path", userSSHConfigFile))
+		zap.L().Fatal("couldn't open user config", zap.String("path", userSSHConfigFile))
 	}
 
 	// search
-	if u.GID_RootObjectCount("import", name) == 0 {
+	if i, _ := u.GID_RootObjectCount("import", []string{name}); i == 0 {
 		u.GID_PreappendInclude(name) // ew
 		u.Write()
 	}

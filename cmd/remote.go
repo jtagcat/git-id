@@ -28,6 +28,7 @@ var cmdRemoteAdd = &cli.Command{
 		&cli.PathFlag{Name: "config", Value: "~/.ssh/git-id.conf", Usage: "path to git-id config file"},
 	},
 	Action: func(ctx *cli.Context) error {
+		//// ARGS ////
 		args := ctx.Args()
 		if args.Len() != 2 {
 			return fmt.Errorf("expected exactly 2 arguments")
@@ -40,14 +41,16 @@ var cmdRemoteAdd = &cli.Command{
 		if len(slug) > 200 { // leave some for your userpart asw; not utf-8 len since it cancels out
 			return fmt.Errorf("please choose a shorter slug")
 		}
+		fullSlug := fmt.Sprintf("*.%s.%s", slug, flTLD)
+
+		host := args.Get(1) // don't validate
+
+		//// START ////
 
 		c := gidOpenConfig(ctx.String("config"))
 
-		fullSlug := fmt.Sprintf("*.%s.%s", slug, flTLD)
-		host := args.Get(1)
-
-		if ok, _ := c.GIDRootObjectExists("Host", fullSlug); ok {
-			return fmt.Errorf("a remote with the slug already exists")
+		if i, secondValues := c.GID_RootObjectCount("Host", []string{fullSlug}); i > 0 {
+			return fmt.Errorf("a remote with the slug %s already exists: %s", fullSlug, secondValues)
 		}
 
 		c.GIDRootObjectSet("Host", []string{fullSlug, host}, ssh_config.GitIDCommonChildren{
@@ -78,8 +81,8 @@ var rmRemoteCmd = &cobra.Command{
 
 		c := gidOpenConfig(flConfigPath)
 
-		if ok, _ := c.GIDRootObjectExists("Host", fullSlug); !ok {
-			return fmt.Errorf("a remote with the slug does not exist")
+		if i, _ := c.GID_RootObjectCount("Host", []string{fullSlug}); i == 0 {
+			return fmt.Errorf("a remote with the slug %s does not exist", fullSlug)
 		}
 
 		// if ok := c.GIDRootObjectRemove()

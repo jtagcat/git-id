@@ -17,16 +17,32 @@ func (c *Config) GID_PreappendInclude(i string) {
 //
 
 // WARN: made _only_ for git-id, may break
-func (c *Config) GID_RootObjectCount(key string, firstValue string) (matches int) {
+// firstsSecondValue: 2nd value of first match
+func (c *Config) GID_RootObjectCount(key string, values []string) (matches int, secondValues []string) {
 	for _, root := range c.cfg {
 		if strings.EqualFold(root.Key, key) &&
-			len(root.Values) < 2 &&
-			strings.EqualFold(root.Values[0].Value, firstValue) {
+			valuesMatch(root.Values, values) {
 
+			secondValues = append(secondValues, root.Values[1].Value)
 			matches++
 		}
 	}
-	return matches
+	return matches, secondValues
+}
+
+// order and len() matters, "" means ignore
+func valuesMatch(against []RawValue, values []string) bool {
+	if len(against) != len(values) {
+		return false
+	}
+
+	for i, a := range against {
+		if values[i] != "" &&
+			!strings.EqualFold(a.Value, values[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 // WARN: made _only_
@@ -58,18 +74,6 @@ func (c *Config) GIDRootObjectSet(key string, values []string, childs GitIDCommo
 		Values:   valuesInjectable,
 		Children: children,
 	})
-}
-
-// WARN: made _only_ for git-id, may break
-func (c *Config) GIDRootObjectExists(key, firstValue string) (ok bool, secondValue string) {
-	for _, root := range c.cfg {
-		if strings.EqualFold(root.Key, key) {
-			if strings.EqualFold(root.Values[0].Value, firstValue) {
-				return true, root.Values[1].Value
-			}
-		}
-	}
-	return false, ""
 }
 
 func (c *Config) GIDRootObjectRemove(key string, values []string) (ok bool) {

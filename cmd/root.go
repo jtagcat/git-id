@@ -3,18 +3,20 @@ package cmd
 import (
 	"log"
 
-	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	"github.com/urfave/cli/v2"
 )
 
 var (
-	gitidHeaderInfo         = " This file is managed by git-id"
-	gitidHeaderDefaults     = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{Value: "Default identities", Quoted: 0}}}
-	gitidHeaderIdentities   = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{Value: "Identities", Quoted: 0}}}
-	gitidHeaderRemotes      = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{Value: "Remotes", Quoted: 0}}}
-	gitidSSHConfigRootXKeys = map[string]bool{"xheader": false}
-	gitidSSHConfigSubXKeys  = []string{"XGitConfig", "XDescription"}
+	gitidHeaderInfo = " This file is managed by git-id"
 
+	// implementing headers would probably be best with virtual configs
+	// gitidHeaderDefaults     = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{Value: "Default identities", Quoted: 0}}}
+	// gitidHeaderIdentities   = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{Value: "Identities", Quoted: 0}}}
+	// gitidHeaderRemotes      = ssh_config.RawTopLevel{Key: "XHeader", Values: []ssh_config.RawValue{{Value: "Remotes", Quoted: 0}}}
+	// gitidSSHConfigRootXKeys = map[string]bool{"xheader": false}
+
+	// hardcodes
+	flTLD             = "git-id"
 	userSSHConfigFile = "~/.ssh/config"
 	remote            = "origin"
 )
@@ -39,7 +41,6 @@ var app = &cli.App{
 // NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
 
 var (
-	flTLD        = "git-id"
 	flConfigPath string
 	flActPath    string
 )
