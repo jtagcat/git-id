@@ -21,7 +21,9 @@ type RawTopLevel struct {
 	Children []RawKeyword
 }
 
-// Decode from ssh_config to Config
+// Decode from ssh_config to Config.
+//
+// Host, Match and Include are hardcoded since there are only 3, and Include means different things in different contexts.
 func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 	var deep bool           // under a host or match
 	var includeIsChild bool // if any other root header has been encountered before include, it is a subkey

@@ -175,7 +175,7 @@ type Keywords struct {
 	RhostsRSAAuthentication *string `minArgs:"1" maxArgs:"-2" definition:"unsupported"`
 	RSAAuthentication       *string `minArgs:"1" maxArgs:"-2" definition:"unsupported"`
 	// ??????
-	//TODO: "Macs undocumented  // NEEDINFO?, cipher?
+	// TODO: "Macs undocumented  // NEEDINFO?, cipher?
 }
 
 // native structs
@@ -195,13 +195,15 @@ type TunnelDevice struct {
 }
 
 // #### enums ####
-type AddressFamily string   // enum: "inet", "inet6", "any"
-type Hash string            // enum: "md5", "sha256"
-type LogFacility string     // enum: "daemon", "user", "auth", "local0", "local1", "local2", "local3", "local4", "local5", "local6", "local7"
-type LogLevel string        // enum: "quiet", "fatal", "error", "info", "verbose", "debug", "debug1", "debug2", "debug3"
-type SessionType string     // enum: "none", "subsystem", "default"
-type YesNoAsk string        // enum: "false", "true", "ask"
-type YesNoAskConfirm string // enum: "false", "true", "ask", "confirm"
+type (
+	AddressFamily   string // enum: "inet", "inet6", "any"
+	Hash            string // enum: "md5", "sha256"
+	LogFacility     string // enum: "daemon", "user", "auth", "local0", "local1", "local2", "local3", "local4", "local5", "local6", "local7"
+	LogLevel        string // enum: "quiet", "fatal", "error", "info", "verbose", "debug", "debug1", "debug2", "debug3"
+	SessionType     string // enum: "none", "subsystem", "default"
+	YesNoAsk        string // enum: "false", "true", "ask"
+	YesNoAskConfirm string // enum: "false", "true", "ask", "confirm"
+)
 
 type Cipher struct {
 	mode    string   // enum: "" (set/override), "+" (append), "^" (preappend), "-" (subtract regex)
@@ -218,20 +220,62 @@ type PermitRemoteOpen struct {
 
 var enumIndex = map[string][]enumValues{
 	"Flag": {{"true", true}, {"false", false}, {"yes", true}, {"no", false}},
-	"YesNoAsk": {{"true", true}, {"false", false}, {"yes", true}, {"no", false},
-		{"ask", "ask"}},
-	"YesNoAskConfirm": {{"true", true}, {"false", false}, {"yes", true}, {"no", false},
-		{"ask", "ask"}, {"confirm", "confirm"}},
-	"ControlMaster": {{"true", true}, {"false", false}, {"yes", true}, {"no", false},
-		{"auto", "auto"}, {"ask", "ask"}, {"autoask", "autoask"}},
-	"StrictHostkey": {{"true", true}, {"false", false}, {"yes", true}, {"no", false}, {"off", false},
-		{"ask", "ask"}, {"accept-new", "accept-new"}},
-	"CanonicalizeHostname": {{"true", true}, {"false", false}, {"yes", true}, {"no", false},
-		{"always", "always"}},
-	"RequestTTY": {{"true", true}, {"false", false}, {"yes", true}, {"no", false},
-		{"force", "force"}, {"auto", "auto"}},
-	"Tunnel": {{"true", true}, {"false", false}, {"yes", true}, {"no", false},
-		{"ethernet", "ethernet"}, {"point-to-point", "point-to-point"}},
+	"YesNoAsk": {
+		{"true", true},
+		{"false", false},
+		{"yes", true},
+		{"no", false},
+		{"ask", "ask"},
+	},
+	"YesNoAskConfirm": {
+		{"true", true},
+		{"false", false},
+		{"yes", true},
+		{"no", false},
+		{"ask", "ask"},
+		{"confirm", "confirm"},
+	},
+	"ControlMaster": {
+		{"true", true},
+		{"false", false},
+		{"yes", true},
+		{"no", false},
+		{"auto", "auto"},
+		{"ask", "ask"},
+		{"autoask", "autoask"},
+	},
+	"StrictHostkey": {
+		{"true", true},
+		{"false", false},
+		{"yes", true},
+		{"no", false},
+		{"off", false},
+		{"ask", "ask"},
+		{"accept-new", "accept-new"},
+	},
+	"CanonicalizeHostname": {
+		{"true", true},
+		{"false", false},
+		{"yes", true},
+		{"no", false},
+		{"always", "always"},
+	},
+	"RequestTTY": {
+		{"true", true},
+		{"false", false},
+		{"yes", true},
+		{"no", false},
+		{"force", "force"},
+		{"auto", "auto"},
+	},
+	"Tunnel": {
+		{"true", true},
+		{"false", false},
+		{"yes", true},
+		{"no", false},
+		{"ethernet", "ethernet"},
+		{"point-to-point", "point-to-point"},
+	},
 	"Compression":   {{"yes", true}, {"no", false}},
 	"AddressFamily": {{"inet", "inet"}, {"inet6", "inet6"}, {"any", "any"}},
 	"SessionType":   {{"none", "none"}, {"subsystem", "subsystem"}, {"default", "default"}},
@@ -246,13 +290,15 @@ type enumValues struct {
 }
 
 // #### custom types
-type ForwardAgent string   // "false", "true" is treated as bools
-type ControlPersist string // bool or time.Duration
-type Ipqos struct {
-	// enum: TODO: see definition
-	interactive    string
-	nonInteractive *string
-}
+type (
+	ForwardAgent   string // "false", "true" is treated as bools
+	ControlPersist string // bool or time.Duration
+	Ipqos          struct {
+		// enum: TODO: see definition
+		interactive    string
+		nonInteractive *string
+	}
+)
 
 type Nzint32 int32 // must not be negative
 
