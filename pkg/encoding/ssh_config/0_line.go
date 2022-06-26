@@ -3,6 +3,7 @@ package ssh_config
 // Handles conversion between raw text and raw structurized lines
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"unicode/utf8"
@@ -30,16 +31,15 @@ func decodeLine(data string) (RawKeyword, error) {
 		// dedicated comment line
 		return RawKeyword{Comment: strings.TrimPrefix(trimmedLine, "#")}, nil
 	}
-	kvSeperatorPos := strings.IndexAny(trimmedLine, " =")
-	key := trimmedLine[:kvSeperatorPos]
-	valuesblob := trimmedLine[kvSeperatorPos+1:]
+
+	key, valuesblob, kvSeperator := CutAny(trimmedLine, " =")
 
 	values, comment, err := DecodeValue(valuesblob)
-	if err == ErrInvalidQuoting {
+	if errors.Is(err, ErrInvalidQuoting) {
 		err = fmt.Errorf("%q: %w", data, err)
 	}
 
-	return RawKeyword{key, values, comment, string(trimmedLine[kvSeperatorPos]) == "="}, err
+	return RawKeyword{key, values, comment, kvSeperator == "="}, err
 }
 
 // Encodes an ssh_config line without type checking.
