@@ -13,6 +13,10 @@ type TopLevel struct {
 	Children Keywords
 }
 
+// ErrNotImplemented
+
+func DecodeType()
+
 //
 //
 //
