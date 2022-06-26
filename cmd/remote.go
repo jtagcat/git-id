@@ -66,6 +66,7 @@ var cmdRemoteAdd = &cli.Command{
 	},
 }
 
+// git id remote rm
 var cmdRemoteRemove = &cli.Command{
 	Name:      "rm",
 	Usage:     "Remove a remote",
@@ -94,24 +95,25 @@ var cmdRemoteRemove = &cli.Command{
 			return fmt.Errorf("remote %s does not exist", suffixSlug)
 		}
 
-		// get children
+		// get/remove children identities
 		// Host jc.gh.git-id
 		for _, t := range trees {
-			if !recursive && t.Values[0] != "*"+suffixSlug {
-				return fmt.Errorf("not deleting remote %s as it has children: use --recursive", slug)
+			if t.Values[0] != "*"+suffixSlug {
+				if !recursive {
+					return fmt.Errorf("cannot delete remote %s: has attached identities (use --recursive)", slug)
+				}
+
+				if ok := c.GIDRootObjectRemoveFirst("Host", t.Values); !ok {
+					return fmt.Errorf("race‽ (report bug?): identity doesn't exist, but it just did")
+				}
 			}
 		}
 
-		// Match OriginalHost github.com
+		// remove remote
+		if ok := c.GIDRootObjectRemoveFirst("Host", []string{suffixSlug}); !ok {
+			return fmt.Errorf("race‽ (report bug?): remote doesn't exist, but it just did")
+		}
 
-		// get defaults
-
-		// refuse
-
-		// remove
-
-		// if ok := c.GIDRootObjectRemove()
-		return fmt.Errorf("not implemented")
 		return c.Write()
 	},
 }

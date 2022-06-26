@@ -41,6 +41,7 @@ var cmdDefault = &cli.Command{
 	},
 }
 
+// git id default clear
 var cmdDefaultClear = &cli.Command{
 	Name:      "clear",
 	Usage:     "Clear previously set default key",

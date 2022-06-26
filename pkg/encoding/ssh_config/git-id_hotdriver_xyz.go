@@ -7,6 +7,7 @@ func (c *Config) GID_InsertRootComment(s string) {
 	c.cfg = append(c.cfg, RawTopLevel{Comment: s})
 }
 
+// WARN: made _only_ for git-id, may break
 func (c *Config) GID_PreappendInclude(i string) {
 	c.cfg = append(
 		[]RawTopLevel{{Key: "Include", Values: []RawValue{{Value: i, Quoted: 2}}}},
@@ -92,7 +93,7 @@ func (c *Config) GID_RootObjectSetFirst(key string, values []string, firstValueI
 	})
 }
 
-// WARN: made _only_
+// WARN: made _only_ for git-id, may break
 func (c *Config) GIDRootObjectRemoveFirst(key string, values []string) (ok bool) {
 	i := func(config []RawTopLevel) int {
 		for i, root := range config {
