@@ -87,7 +87,7 @@ func gidOpenConfig(path string) *ssh_config.Config {
 	}
 
 	// init
-	c.GID_InsertRootComment(gitidHeaderInfo)
+	c.GID_PreappendRootComment(gitidHeaderInfo)
 	c.Write() // before including
 	log.Printf("created config file at %s", path)
 

@@ -3,8 +3,8 @@ package ssh_config
 import "strings"
 
 // WARN: made _only_ for git-id, may break
-func (c *Config) GID_InsertRootComment(s string) {
-	c.cfg = append(c.cfg, RawTopLevel{Comment: s})
+func (c *Config) GID_PreappendRootComment(s string) {
+	c.cfg = append([]RawTopLevel{{Comment: s}}, c.cfg...)
 }
 
 // WARN: made _only_ for git-id, may break
