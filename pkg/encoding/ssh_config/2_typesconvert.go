@@ -15,7 +15,7 @@ type TopLevel struct {
 
 // ErrNotImplemented
 
-func DecodeType()
+// func DecodeValueType(r RawValue)
 
 //
 //
