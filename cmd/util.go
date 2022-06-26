@@ -88,6 +88,7 @@ func gidOpenConfig(name string) *ssh_config.Config {
 	// init
 	c.GID_InsertRootComment(gitidHeaderInfo)
 	c.Write() // before including
+	zap.L().Info("created config file", zap.String("path", name))
 
 	// import
 	u, _, err := ssh_config.OpenConfig(ssh_config.Opts{Indent: "  "}, userSSHConfigFile)
@@ -100,6 +101,7 @@ func gidOpenConfig(name string) *ssh_config.Config {
 		u.GID_PreappendInclude(name) // ew
 		u.Write()
 	}
+	zap.L().Info("included config in ssh_config", zap.String("path", userSSHConfigFile))
 
 	return c
 }

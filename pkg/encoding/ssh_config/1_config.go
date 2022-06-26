@@ -30,6 +30,9 @@ type Opts struct {
 	Indent string // standard: "  "
 }
 
+// Opens a config. Changes must be flushed with (*Config).Write().
+// Filehandle is not kept open after reads and writes.
+//
 // bool: new file created
 func OpenConfig(o Opts, name string) (*Config, bool, error) {
 	path, err := homedir.Expand(name)

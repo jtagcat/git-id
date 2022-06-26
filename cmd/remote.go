@@ -16,6 +16,7 @@ var cmdRemote = &cli.Command{
 	Usage: "Manage remotes",
 	Subcommands: []*cli.Command{
 		cmdRemoteAdd,
+		cmdRemoteRemove,
 	},
 }
 
@@ -55,7 +56,7 @@ var cmdRemoteAdd = &cli.Command{
 			return fmt.Errorf("a remote with the slug %s already exists: %s", fullSlug, trees[0].Values)
 		}
 
-		c.GIDRootObjectSet("Host", []string{fullSlug}, ssh_config.GitIDCommonChildren{
+		c.GID_RootObjectSetFirst("Host", []string{fullSlug}, false, ssh_config.GitIDCommonChildren{
 			Hostname:       host,
 			IdentitiesOnly: true,
 			XDescription:   ctx.String("description"),
@@ -111,36 +112,6 @@ var cmdRemoteRemove = &cli.Command{
 
 		// if ok := c.GIDRootObjectRemove()
 		return fmt.Errorf("not implemented")
-		return c.Write()
-	},
-}
-
-// NONMVP: remove default
-var cmdRemoteDefault = &cli.Command{
-	Name:      "default",
-	Usage:     "Set remote's default key",
-	ArgsUsage: "git-id remote default <domain> <default IdentityFile>",
-	Flags: []cli.Flag{
-		flagConfig,
-	},
-	Action: func(ctx *cli.Context) error {
-		//// ARGS ////
-		args := ctx.Args()
-		if args.Len() != 2 {
-			return fmt.Errorf("expected exactly 2 arguments")
-		}
-
-		host := args.Get(0)
-		idfile := args.Get(1)
-
-		c := gidOpenConfig(flConfigPath)
-
-		// Match OriginalHost github.com
-		c.GIDRootObjectSet("Match", []string{"OriginalHost", host}, ssh_config.GitIDCommonChildren{
-			IdentityFile:   idfile,
-			IdentitiesOnly: true,
-		})
-
 		return c.Write()
 	},
 }

@@ -38,6 +38,7 @@ var app = &cli.App{
 	},
 	Commands: []*cli.Command{
 		cmdRemote,
+		cmdDefault,
 	},
 }
 

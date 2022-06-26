@@ -63,11 +63,9 @@ func valuesMatch(against []RawValue, values []string, suffix bool) bool {
 	return true
 }
 
-// WARN: made _only_
-
 // WARN: made _only_ for git-id, may break
 // Brutal implementation of override and don't care anything for the sake of time
-func (c *Config) GIDRootObjectSet(key string, values []string, childs GitIDCommonChildren) {
+func (c *Config) GID_RootObjectSetFirst(key string, values []string, firstValueIsSubKey bool, childs GitIDCommonChildren) {
 	children := childsEncode(childs)
 	for _, root := range c.cfg {
 		if strings.EqualFold(root.Key, key) {
@@ -94,7 +92,8 @@ func (c *Config) GIDRootObjectSet(key string, values []string, childs GitIDCommo
 	})
 }
 
-func (c *Config) GIDRootObjectRemove(key string, values []string) (ok bool) {
+// WARN: made _only_
+func (c *Config) GIDRootObjectRemoveFirst(key string, values []string) (ok bool) {
 	i := func(config []RawTopLevel) int {
 		for i, root := range config {
 			if strings.EqualFold(root.Key, key) {
