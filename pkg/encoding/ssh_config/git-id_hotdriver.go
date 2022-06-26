@@ -8,7 +8,7 @@ import "strings"
 
 type GitIDCommonChildren struct {
 	IdentitiesOnly bool
-	XDescription, IdentityFile,
+	IdentityFile, Hostname, XDescription,
 	XGitConfigUserName, XGitConfigUserMail, XGitConfigSigningKey string
 }
 
@@ -40,6 +40,13 @@ func childsEncode(c GitIDCommonChildren) (raw []RawKeyword) {
 		})
 	}
 
+	if c.Hostname != "" {
+		raw = append(raw, RawKeyword{
+			Key:    "Hostname",
+			Values: []RawValue{{Value: c.Hostname, Quoted: 2}},
+		})
+	}
+
 	if c.XGitConfigUserName != "" {
 		raw = append(raw, RawKeyword{
 			Key:    "XGitConfig",
@@ -67,24 +74,26 @@ func childsEncode(c GitIDCommonChildren) (raw []RawKeyword) {
 func childsDecode(raw []RawKeyword) (c GitIDCommonChildren) {
 	// expecting panics from out of index, but that's ok (:
 	for _, r := range raw {
-		switch r.Key {
+		switch strings.ToLower(r.Key) {
 		default: // cowardly ignore and forget
-		case "IdentitiesOnly":
-			switch r.Values[0].Value {
+		case "identitiesonly":
+			switch strings.ToLower(r.Values[0].Value) {
 			case "true", "yes":
 				c.IdentitiesOnly = true
 			}
-		case "XDescription":
+		case "xdescription":
 			for i, v := range r.Values {
 				if i > 0 {
 					c.XDescription += "\n"
 				}
 				c.XDescription += v.Value
 			}
-		case "IdentityFile":
+		case "identityfile":
 			c.IdentityFile = r.Values[0].Value
-		case "XGitConfig":
-			switch r.Values[0].Value {
+		case "hostname":
+			c.Hostname = r.Values[0].Value
+		case "xgitConfig":
+			switch strings.ToLower(r.Values[0].Value) {
 			case "user.name":
 				c.XGitConfigUserName = r.Values[1].Value
 			case "user.email":
