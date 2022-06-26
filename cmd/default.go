@@ -23,7 +23,7 @@ var cmdDefault = &cli.Command{
 		//// ARGS ////
 		args := ctx.Args()
 		if args.Len() != 2 {
-			fmt.Println(ctx.Command.ArgsUsage)
+			fmt.Println("Usage:", ctx.Command.ArgsUsage)
 			return fmt.Errorf("expected exactly 2 arguments")
 		}
 
@@ -51,7 +51,7 @@ var cmdDefaultClear = &cli.Command{
 		//// ARGS ////
 		args := ctx.Args()
 		if args.Len() != 1 {
-			fmt.Println(ctx.Command.ArgsUsage)
+			fmt.Println("Usage:", ctx.Command.ArgsUsage)
 			return fmt.Errorf("expected exactly 1 argument")
 		}
 
