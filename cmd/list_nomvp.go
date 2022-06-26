@@ -13,11 +13,11 @@ var listCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(listCmd)
-	listCmd.AddCommand(listIdCmd)
-	listCmd.AddCommand(listRemoteCmd)
-}
+// func init() {
+// 	rootCmd.AddCommand(listCmd)
+// 	listCmd.AddCommand(listIdCmd)
+// 	listCmd.AddCommand(listRemoteCmd)
+// }
 
 var listIdCmd = &cobra.Command{
 	Use:   "id",

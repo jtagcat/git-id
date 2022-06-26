@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"os"
+	"log"
 
-	"github.com/jtagcat/git-id/pkg"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
-	"github.com/rs/zerolog"
-	"github.com/spf13/cobra"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -20,28 +18,24 @@ var (
 	remote = "origin"
 )
 
-func Execute() {
-	// TODO: DEV
-	zerolog.SetGlobalLevel(zerolog.TraceLevel)
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+func Execute(args []string) {
+	if err := app.Run(args); err != nil {
+		log.Fatalln(err)
 	}
 }
 
-// rootCmd is the base command, 'git id'
-var rootCmd = &cobra.Command{
-	Use:   "git-id",
-	Short: "Dumb Git identity management",
-	Long: `git-id speeds up setting up and managing multiple identities with git.
-Configuration is only applied — after setup, git-id is not needed.`,
-	// 'git-id' aliases to 'git-id status'`,
-	//	Run: func(cmd *cobra.Command, args []string) {
-	//		statusCmd.Run(cmd, args)
-	//	},
-	// NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
-
+var app = &cli.App{
+	Name:  "git-id",
+	Usage: "Git identity management",
+	Flags: []cli.Flag{
+		&cli.PathFlag{Name: "config", Value: "~/.ssh/git-id.conf", Usage: "path to git-id config file"},
+	},
+	Commands: []*cli.Command{
+		cmdRemote,
+	},
 }
+
+// NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
 
 var (
 	flTLD        = "git-id"
@@ -49,11 +43,10 @@ var (
 	flActPath    string
 )
 
-func init() {
-	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) // TODO: parse -vvv and --verbose=5 / --verbose=info
-	rootCmd.PersistentFlags().StringVar(&flConfigPath, "config", "~/.ssh/git-id.conf", "path to git-id managed configuration file")
-	rootCmd.PersistentFlags().StringVarP(&flActPath, "", "C", "", "Act on `path` instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
-}
+// func init() {
+// 	pkg.ZerologLevelStringint(os.Getenv("LOGLEVEL")) // TODO: parse -vvv and --verbose=5 / --verbose=info
+// 	rootCmd.PersistentFlags().StringVarP(&flActPath, "", "C", "", "Act on `path` instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
+// }
 
 // func accessConfig() *os.File {
 // 	//

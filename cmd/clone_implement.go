@@ -16,8 +16,8 @@ var cloneCmd = &cobra.Command{
 // replace github.com with hijacked thing
 // git config execs (call git-id use)
 
-func init() {
-	rootCmd.AddCommand(cloneCmd)
-}
+// func init() {
+// 	rootCmd.AddCommand(cloneCmd)
+// }
 
 // NOMVP: is there anything similar to clone we need to cover?

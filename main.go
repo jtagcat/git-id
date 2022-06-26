@@ -1,7 +1,11 @@
 package main
 
-import "github.com/jtagcat/git-id/cmd"
+import (
+	"os"
+
+	"github.com/jtagcat/git-id/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	cmd.Execute(os.Args)
 }

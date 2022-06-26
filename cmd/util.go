@@ -1,5 +1,14 @@
 package cmd
 
+import (
+	"errors"
+	"os"
+
+	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
+	"github.com/mitchellh/go-homedir"
+	"go.uber.org/zap"
+)
+
 // // nil, fs.ErrInvalid
 // func giRemotesFromAnyHost(cfg []ssh_config.RawTopLevel, host string) (remotes []string, err error) {
 // 	if host == "" {
@@ -69,3 +78,21 @@ package cmd
 // 	// Import to .ssh/config
 // 	// if already exists
 // }
+
+func openConfig(name string) *ssh_config.Config {
+	path, err := homedir.Expand(name)
+	if err != nil {
+		zap.L().Error("couldn't expand config path", zap.String("path", name), zap.Error(err))
+	}
+
+	if _, err := os.Stat("/path/to/whatever"); errors.Is(err, os.ErrNotExist) {
+		c, err := ssh_config.OpenConfig(ssh_config.Opts{
+			SubXKeys: []string{
+				"XDescription",
+				"XGitConfig",
+			},
+			Indent: "  ",
+		}, name)
+		zap.L().Error("couldn't open config", zap.String("name", name), zap.Error(err))
+	}
+}

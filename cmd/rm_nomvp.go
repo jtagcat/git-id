@@ -13,6 +13,6 @@ var rmCmd = &cobra.Command{
 
 // ssh config fallback: alias deleted to default
 
-func init() {
-	rootCmd.AddCommand(rmCmd)
-}
+// func init() {
+// 	rootCmd.AddCommand(rmCmd)
+// }

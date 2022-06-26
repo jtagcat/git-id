@@ -13,6 +13,14 @@ type TopLevel struct {
 	Children Keywords
 }
 
+type keywordType interface{}
+
+var keywordMap = map[string]keywordType{
+	"IdentityFile":   string, // wrong, git-id simplification
+	"Hostname":       string,
+	"IdentitiesOnly": bool,
+}
+
 // ErrNotImplemented
 
 // func DecodeValueType(r RawValue)

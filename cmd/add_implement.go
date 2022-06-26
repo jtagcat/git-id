@@ -17,19 +17,18 @@ var addCmd = &cobra.Command{
 }
 
 var (
-	flUsername    string
-	flEmail       string
-	flSigningKey  string
-	flDescription string
+	flUsername   string
+	flEmail      string
+	flSigningKey string
 )
 
-func init() {
-	rootCmd.AddCommand(addCmd)
-	addCmd.LocalFlags().StringVarP(&flUsername, "username", "u", "", "git user.name")
-	addCmd.LocalFlags().StringVarP(&flEmail, "email", "e", "", "git user.email")
-	addCmd.LocalFlags().StringVarP(&flSigningKey, "sigkey", "s", "", "git user.signingKey")
-	addCmd.LocalFlags().StringVarP(&flDescription, "description", "d", "", "git-id-only, memory refresher")
-}
+// func init() {
+// 	rootCmd.AddCommand(addCmd)
+// 	addCmd.LocalFlags().StringVarP(&flUsername, "username", "u", "", "git user.name")
+// 	addCmd.LocalFlags().StringVarP(&flEmail, "email", "e", "", "git user.email")
+// 	addCmd.LocalFlags().StringVarP(&flSigningKey, "sigkey", "s", "", "git user.signingKey")
+// 	// addCmd.LocalFlags().StringVarP(&flDescription, "description", "d", "", "git-id-only, memory refresher")
+// }
 
 // IMPORTANT: NOMVP:
 // - username-email should be seperate / child objects we fetch / they are referenced by identities

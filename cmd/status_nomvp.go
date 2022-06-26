@@ -12,7 +12,7 @@ var statusCmd = &cobra.Command{
 	// also validate that the identity is up to date, and supposed to be working, maybe --testonline or sth?
 }
 
-func init() {
-	rootCmd.AddCommand(statusCmd)
-	// same as git id clone: -C: act on different dir
-}
+// func init() {
+// 	rootCmd.AddCommand(statusCmd)
+// 	// same as git id clone: -C: act on different dir
+// }

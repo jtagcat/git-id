@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/google/renameio/v2"
+	"github.com/mitchellh/go-homedir"
 )
 
 type Config struct {
@@ -27,16 +28,21 @@ type Opts struct {
 	Indent string // standard: "  "
 }
 
-func OpenConfig(o Opts, path string) (Config, error) {
+func OpenConfig(o Opts, name string) (*Config, error) {
+	path, err := homedir.Expand(name)
+	if err != nil {
+		return &Config{}, err
+	}
+
 	f, err := os.Open(path)
 	if err != nil {
-		return Config{}, err
+		return &Config{}, err
 	}
 	defer f.Close()
 
 	cfg, err := Decode(o, bufio.NewReader(f))
 
-	return Config{
+	return &Config{
 		cfg:  cfg,
 		o:    o,
 		path: path,
