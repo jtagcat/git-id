@@ -4,6 +4,7 @@ package ssh_config
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"reflect"
@@ -45,7 +46,7 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 	scanner := bufio.NewScanner(data)
 	for i := 1; scanner.Scan(); i++ {
 		line, err := decodeLine(strings.ToValidUTF8(scanner.Text(), "")) // [macro B]
-		if err == ErrInvalidQuoting {                                    // crash and burn
+		if errors.Is(err, ErrInvalidQuoting) {                           // crash and burn
 			err = fmt.Errorf("while parsing line %d: %w", i, err)
 		}
 		if err != nil {
@@ -71,7 +72,7 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 
 			if rootXKey || subXKey { // parse xkey comment to key
 				line, err = decodeLine(strings.ToValidUTF8(line.Comment, "")) // [macro B]
-				if err == ErrInvalidQuoting {
+				if errors.Is(err, ErrInvalidQuoting) {
 					err = fmt.Errorf("while parsing xkey on line %d: %w", i, err)
 				}
 				if err != nil {

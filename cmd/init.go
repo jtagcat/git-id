@@ -12,7 +12,7 @@ package cmd
 // 		gitidConfig_path := path.Join(flSSHConfigDir, flGIConfig_name)
 
 // 		// init git-id.conf
-// 		if _, err := os.Stat(gitidConfig_path); err == fs.ErrNotExist {
+// 		if _, err := os.Stat(gitidConfig_path); errors.Is(err, ErrNotExist) {
 // 			// write only if doesn't exist
 // 			if err := os.WriteFile(gitidConfig_path, []byte(gitidHeaderInfo+"\n"), 0o600); err != nil {
 // 				log.Error().Err(err).Msgf("Failed creating %q", gitidConfig_path)
