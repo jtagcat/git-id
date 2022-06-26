@@ -25,7 +25,7 @@ func TestDecodeValue(t *testing.T) {
 		"\\":              {[]RawValue{{"\\\\", 0}}, "", nil},
 		"hello # comment": {[]RawValue{{"hello", 0}}, " comment", nil},
 		"close#relations": {[]RawValue{{"close", 0}}, "relations", nil},
-		"#amcomment":      {[]RawValue{}, "amcomment", nil},
+		"#amcomment":      {nil, "amcomment", nil},
 		// TODO:
 	}
 	for input, want := range inputs {

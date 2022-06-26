@@ -176,7 +176,7 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 }
 
 // Encode from ssh_config to Config
-func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
+func Encode(o Opts, cfg []RawTopLevel, data io.Writer) (err error) {
 	keywordType := reflect.TypeOf(Keywords{})
 	keywordKMap := make(map[string]bool)
 	for i := 0; i < keywordType.NumField(); i++ {
@@ -193,7 +193,6 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 	defer w.Flush()
 
 	var includeIsChild bool
-	var warn error
 	for _, r := range cfg {
 		locaseRK := strings.ToLower(r.Key)
 		var enline string
@@ -207,10 +206,13 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 			rc := r // copy for rootobj reset + children looping
 			if isRootXKey {
 				r = RawTopLevel{}
-				r.Comment, _ = encodeLine("", RawKeyword{rc.Key, rc.Values, rc.Comment, rc.EncodingKVSeperatorIsEquals})
+				r.Comment, err = encodeLine("", RawKeyword{rc.Key, rc.Values, rc.Comment, rc.EncodingKVSeperatorIsEquals})
+				if err != nil {
+					return fmt.Errorf("while encoding rootXKey: %w", err)
+				}
 			}
 
-			enline, warn = encodeLine("", RawKeyword{r.Key, r.Values, r.Comment, r.EncodingKVSeperatorIsEquals})
+			enline, err = encodeLine("", RawKeyword{r.Key, r.Values, r.Comment, r.EncodingKVSeperatorIsEquals})
 			if _, err := w.WriteString(enline + "\n"); err != nil {
 				return fmt.Errorf("while Encode'ing to io.Writer: %w", err)
 			}
@@ -232,7 +234,7 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 					}
 				}
 
-				enline, warn = encodeLine(o.Indent, c)
+				enline, err = encodeLine(o.Indent, c)
 				if _, err := w.WriteString(enline + "\n"); err != nil {
 					return fmt.Errorf("while Encode'ing to io.Writer: %w", err)
 				}
@@ -241,5 +243,5 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 		}
 		return fmt.Errorf("while encoding TLD %q: %w", r.Key, ErrInvalidKeyword)
 	}
-	return warn
+	return err
 }
