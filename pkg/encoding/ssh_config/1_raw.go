@@ -211,7 +211,9 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 			}
 
 			enline, warn = encodeLine("", RawKeyword{r.Key, r.Values, r.Comment, r.EncodingKVSeperatorIsEquals})
-			w.WriteString(enline + "\n")
+			if _, err := w.WriteString(enline + "\n"); err != nil {
+				return fmt.Errorf("while Encode'ing to io.Writer: %w", err)
+			}
 
 			for _, c := range rc.Children {
 				locaseCK := strings.ToLower(c.Key)
@@ -231,7 +233,9 @@ func Encode(o Opts, cfg []RawTopLevel, data io.Writer) error {
 				}
 
 				enline, warn = encodeLine(o.Indent, c)
-				w.WriteString(enline + "\n")
+				if _, err := w.WriteString(enline + "\n"); err != nil {
+					return fmt.Errorf("while Encode'ing to io.Writer: %w", err)
+				}
 			}
 			continue
 		}
