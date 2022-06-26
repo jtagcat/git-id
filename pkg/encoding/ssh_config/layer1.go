@@ -8,9 +8,15 @@ import (
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/google/renameio/v2"
 )
 
-type Config []RawTopLevel
+type Config struct {
+	cfg  []RawTopLevel
+	o    Opts
+	path string
+}
 
 type Opts struct {
 	// (optional) xkeys are custom keys nested inside comments,
@@ -29,12 +35,32 @@ type Opts struct {
 func OpenConfig(o Opts, path string) (Config, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return Config{}, err
+	}
+	defer f.Close()
+
+	cfg, err := Decode(o, bufio.NewReader(f))
+
+	return Config{
+		cfg:  cfg,
+		o:    o,
+		path: path,
+	}, err
+}
+
+func (c *Config) Write() error {
+	// atomically replace
+	f, err := renameio.NewPendingFile(c.path)
+	if err != nil {
+		return err
 	}
 
-	r := bufio.NewReader(f)
+	err = Encode(c.o, c.cfg, bufio.NewWriter(f))
+	if err != nil {
+		return err
+	}
 
-	return Decode(o, r)
+	return f.CloseAtomicallyReplace()
 }
 
 // Decode from ssh_config to Config

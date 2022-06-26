@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/google/renameio/v2 v2.0.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
