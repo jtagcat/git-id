@@ -2,6 +2,8 @@ package ssh_config
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"os"
 
 	"github.com/google/renameio/v2"
@@ -28,15 +30,23 @@ type Opts struct {
 	Indent string // standard: "  "
 }
 
-func OpenConfig(o Opts, name string) (*Config, error) {
+// bool: new file created
+func OpenConfig(o Opts, name string) (*Config, bool, error) {
 	path, err := homedir.Expand(name)
 	if err != nil {
-		return &Config{}, err
+		return &Config{}, false, err
+	}
+
+	var init bool
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		init = true
+	} else if err != nil {
+		return &Config{}, false, fmt.Errorf("couldn't stat config at %s: %w", path, err)
 	}
 
 	f, err := os.Open(path)
 	if err != nil {
-		return &Config{}, err
+		return &Config{}, init, err
 	}
 	defer f.Close()
 
@@ -46,7 +56,7 @@ func OpenConfig(o Opts, name string) (*Config, error) {
 		cfg:  cfg,
 		o:    o,
 		path: path,
-	}, err
+	}, init, err
 }
 
 func (c *Config) Write() error {

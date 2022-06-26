@@ -15,7 +15,8 @@ var (
 	gitidSSHConfigRootXKeys = map[string]bool{"xheader": false}
 	gitidSSHConfigSubXKeys  = []string{"XGitConfig", "XDescription"}
 
-	remote = "origin"
+	userSSHConfigFile = "~/.ssh/config"
+	remote            = "origin"
 )
 
 func Execute(args []string) {

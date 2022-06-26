@@ -41,11 +41,7 @@ var cmdRemoteAdd = &cli.Command{
 			return fmt.Errorf("please choose a shorter slug")
 		}
 
-		confPath := ctx.String("config")
-		c, err := ssh_config.GIDOpenConfig(confPath)
-		if err != nil {
-			return fmt.Errorf("while opening config at %s: %w", flConfigPath, err)
-		}
+		c := gidOpenConfig(ctx.String("config"))
 
 		fullSlug := fmt.Sprintf("*.%s.%s", slug, flTLD)
 		host := args.Get(1)
@@ -80,10 +76,7 @@ var rmRemoteCmd = &cobra.Command{
 		}
 		fullSlug := fmt.Sprintf("*.%s.%s", args[0], flTLD)
 
-		c, err := ssh_config.GIDOpenConfig(flConfigPath)
-		if err != nil {
-			return fmt.Errorf("while opening config at %s: %w", flConfigPath, err)
-		}
+		c := gidOpenConfig(flConfigPath)
 
 		if ok, _ := c.GIDRootObjectExists("Host", fullSlug); !ok {
 			return fmt.Errorf("a remote with the slug does not exist")

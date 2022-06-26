@@ -2,24 +2,34 @@ package ssh_config
 
 // Handles conversion between raw and nonraw root structures (this is a wormbox)
 
-type TopLevel struct {
-	Key string // enum(4): "" (comment / empty line), Host, Match,
-	//                     Include: not recursed, nothing is done (no Children)
-	Values []RawValue
-	// "# foobar" → " foobar", note the leading space
-	Comment                     string
-	EncodingKVSeperatorIsEquals bool // "Key=Value" instead of "Key Value"
+// type TopLevel struct {
+// 	Key string // enum(4): "" (comment / empty line), Host, Match,
+// 	//                     Include: not recursed, nothing is done (no Children)
+// 	Values []RawValue
+// 	// "# foobar" → " foobar", note the leading space
+// 	Comment                     string
+// 	EncodingKVSeperatorIsEquals bool // "Key=Value" instead of "Key Value"
 
-	Children Keywords
-}
+// 	Children Keywords
+// }
 
-type keywordType interface{}
+// type Value interface {
+// 	decode([]string) interface{}
+// 	encode(interface{}) []string
+// }
 
-var keywordMap = map[string]keywordType{
-	"IdentityFile":   string, // wrong, git-id simplification
-	"Hostname":       string,
-	"IdentitiesOnly": bool,
-}
+// var keywordMap = map[string]keywordType{
+// 	"IdentityFile":   string, // wrong, git-id simplification
+// 	"Hostname":       string,
+// 	"IdentitiesOnly": bool,
+// }
+
+// type kwTypeFlag bool
+// func (b *kwTypeFlag) encode(bool) []string {
+// 	if
+// }
+
+// type IdentityFile []string
 
 // ErrNotImplemented
 

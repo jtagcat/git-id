@@ -1,11 +1,7 @@
 package cmd
 
 import (
-	"errors"
-	"os"
-
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
-	"github.com/mitchellh/go-homedir"
 	"go.uber.org/zap"
 )
 
@@ -79,20 +75,37 @@ import (
 // 	// if already exists
 // }
 
-func openConfig(name string) *ssh_config.Config {
-	path, err := homedir.Expand(name)
+func gidOpenConfig(name string) *ssh_config.Config {
+	c, new, err := ssh_config.OpenConfig(ssh_config.Opts{
+		SubXKeys: []string{
+			"XDescription",
+			"XGitConfig",
+		},
+		Indent: "  ",
+	}, name)
 	if err != nil {
-		zap.L().Error("couldn't expand config path", zap.String("path", name), zap.Error(err))
+		zap.L().Error("couldnt open config", zap.String("path", name), zap.Error(err))
 	}
 
-	if _, err := os.Stat("/path/to/whatever"); errors.Is(err, os.ErrNotExist) {
-		c, err := ssh_config.OpenConfig(ssh_config.Opts{
-			SubXKeys: []string{
-				"XDescription",
-				"XGitConfig",
-			},
-			Indent: "  ",
-		}, name)
-		zap.L().Error("couldn't open config", zap.String("name", name), zap.Error(err))
+	if !new {
+		return c
 	}
+
+	// init
+	c.GID_InsertRootComment(gitidHeaderInfo)
+	c.Write() // before including
+
+	// import
+	u, _, err := ssh_config.OpenConfig(ssh_config.Opts{Indent: "  "}, userSSHConfigFile)
+	if err != nil {
+		zap.L().Error("couldn't open user config", zap.String("path", userSSHConfigFile))
+	}
+
+	// search
+	if u.GID_RootObjectCount("import", name) == 0 {
+		u.GID_PreappendInclude(name) // ew
+		u.Write()
+	}
+
+	return c
 }
