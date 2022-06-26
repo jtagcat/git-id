@@ -6,12 +6,12 @@ import (
 	"github.com/minio/pkg/wildcard"
 )
 
-// splits []RawTopLevel to up to 3, based on start/end header key-values (headers are usually comments, use xkeys).
-// 2nd return is what you usually want.
+// Splits Config to (up to) 3, based on start/end headers (usually xkeys).
 //
-// Only the first match will be considered;
-// header of default value ("") will be ignored.
-func GetBetweenHeaders(cfg []RawTopLevel, startHeaders, eofHeaders []RawTopLevel) (beforeHeader, betweenHeaders, afterHeader []RawTopLevel) {
+// Match is considered when any of the header key-value is equal case-insensitivly.
+//
+// Both inputs are optional.
+func (c *Config) getBetweenHeaders(startHeaders, eofHeaders []RawTopLevel) (beforeHeader, betweenHeaders, afterHeader []RawTopLevel) {
 	startHeaderMap := make(map[string][]RawValue)
 	for _, h := range startHeaders {
 		startHeaderMap[strings.ToLower(h.Key)] = h.Values
@@ -25,7 +25,7 @@ func GetBetweenHeaders(cfg []RawTopLevel, startHeaders, eofHeaders []RawTopLevel
 	if len(startHeaders) == 0 {
 		state = 1
 	}
-	for _, line := range cfg {
+	for _, line := range c.cfg {
 		switch state {
 		case 0: // before header
 			if values, ok := startHeaderMap[strings.ToLower(line.Key)]; ok { // key matches
