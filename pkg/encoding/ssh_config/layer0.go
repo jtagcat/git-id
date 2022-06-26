@@ -3,6 +3,7 @@ package ssh_config
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 // Parse an ssh_config line without type checking.
@@ -60,9 +61,16 @@ func encodeLine(indent string, rkw RawKeyword) (string, error) {
 func DecodeValue(s string) (values []RawValue, comment string, err error) {
 	// func inspired by https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/openssh-8.8.tar.gz misc.c#1889 and strings.FieldsFunc()
 	strings, currentString, quoted := []RawValue{}, "", 0
+	maxPos := utf8.RuneCountInString(s) - 1 // prevents index (of next rune) out of range
+
 runereader:
 	for pos, rune := range s {
 		if rune == '\\' { // single backslash
+			if pos == maxPos { // last rune
+				currentString += "\\\\" // 2 backslashes
+				continue
+			}
+
 			switch string(s[pos+1]) {
 			case "'":
 				currentString += "'"
@@ -115,19 +123,24 @@ runereader:
 				continue
 			}
 			if rune == '#' {
-				comment = s[pos+1:]
+				if pos == maxPos { // last rune
+					comment = ""
+				} else {
+					comment = s[pos+1:]
+				}
+
 				break runereader
 			}
 		}
 		currentString += string(rune)
 	}
 	if quoted != 0 {
-		err = fmt.Errorf("unescapeValues: %q: %w", currentString, ErrInvalidQuoting)
+		return nil, "", fmt.Errorf("unescapeValues: %q: %w", currentString, ErrInvalidQuoting)
 	}
 	if currentString != "" {
 		strings = append(strings, RawValue{currentString, 0})
 	}
-	return strings, comment, err
+	return strings, comment, nil
 }
 
 // encodes an ssh_config valuepart
