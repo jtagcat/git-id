@@ -1,6 +1,7 @@
 package ssh_config
 
-// Compatible with OpenSSH 8.8
+// Handles conversion between raw and nonraw root structures (this is a wormbox)
+
 type TopLevel struct {
 	Key string // enum(4): "" (comment / empty line), Host, Match,
 	//                     Include: not recursed, nothing is done (no Children)
@@ -12,29 +13,9 @@ type TopLevel struct {
 	Children Keywords
 }
 
-type RawTopLevel struct {
-	Key string // enum(4): "" (comment / empty line), Host, Match,
-	//                     Include: not recursed, nothing is done (no Children)
-	Values []RawValue
-	// "# foobar" → " foobar", note the leading space
-	Comment                     string
-	EncodingKVSeperatorIsEquals bool // "Key=Value" instead of "Key Value"
-
-	Children []RawKeyword
-}
-
-type RawKeyword struct {
-	Key    string
-	Values []RawValue // when key set, len(Values) >= 1
-	// "# foobar" → " foobar", note the leading space
-	Comment string // at the end of same line as Key
-
-	EncodingKVSeperatorIsEquals bool // "Key=Value" instead of "Key Value"
-}
-type RawValue struct {
-	Value  string
-	Quoted int // enum: 0: not, 1: single, 2: double
-}
+//
+//
+//
 
 // func validateKeywords(kws Keywords) error {
 // 	tkw := reflect.TypeOf(kws)
@@ -116,6 +97,6 @@ type RawValue struct {
 
 // TODO: have an overwrite detector for duplicate(ish) key-values
 
-//TODO: transform case, strip 2+ spaces
+// TODO: transform case, strip 2+ spaces
 
 // func importRawKeyword

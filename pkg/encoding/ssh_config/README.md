@@ -116,7 +116,5 @@ type Keyword.* struct {
 
 Using a map with metadata, and adding methods to each and every one would also be an option, yet it has the same drawbacks as the first option, and if not using path, it mixes up metadata of same-named keys.
 
-### I give up
-I don't need it, I've sunken enough time. The library will provide just raw objects. No typing.
-
-Thus, `layer1b.go`. I'm not planning on actively adding anything. PRs welcome, upstream changes for both ssh_config and golang are encouraged.
+## Unimplemented niceties
+Updates without re-writing the whole file are possible, but not implemented. They will not be implemented by the maintainer.

@@ -6,6 +6,7 @@ import (
 	"github.com/minio/pkg/wildcard"
 )
 
+//TODO: headers are out of scope for MVP: merging headerspaces would be planned
 // Splits Config to (up to) 3, based on start/end headers (usually xkeys).
 //
 // Match is considered when any of the header key-value is equal case-insensitivly.

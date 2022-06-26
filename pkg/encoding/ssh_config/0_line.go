@@ -1,10 +1,21 @@
 package ssh_config
 
+// Handles conversion between raw text and raw structurized lines
+
 import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
 )
+
+type RawKeyword struct {
+	Key    string
+	Values []RawValue // when key set, len(Values) >= 1
+	// "# foobar" → " foobar", note the leading space
+	Comment string // at the end of same line as Key
+
+	EncodingKVSeperatorIsEquals bool // "Key=Value" instead of "Key Value"
+}
 
 // Parse an ssh_config line without type checking.
 // rawKeyword might be a TLD object;
@@ -52,6 +63,11 @@ func encodeLine(indent string, rkw RawKeyword) (string, error) {
 
 	valuePart, err := EncodeValue(rkw.Values, rkw.Comment)
 	return keyPart + valuePart, err
+}
+
+type RawValue struct {
+	Value  string
+	Quoted int // enum: 0: not, 1: single, 2: double
 }
 
 // decodes an ssh_config valuepart
