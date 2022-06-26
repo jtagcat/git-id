@@ -48,8 +48,9 @@ var cmdRemoteAdd = &cli.Command{
 
 		c := gidOpenConfig(ctx.String("config"))
 
-		if i, secondValues := c.GID_RootObjectCount("Host", []string{fullSlug}, false); i > 0 {
-			return fmt.Errorf("a remote with the slug %s already exists: %s", fullSlug, secondValues)
+		// Host *.gh.git-id
+		if i, trees := c.GID_RootObjectCount("Host", []string{fullSlug}, false); i > 0 {
+			return fmt.Errorf("a remote with the slug %s already exists: %s", fullSlug, trees[0].SecondValues)
 		}
 
 		c.GIDRootObjectSet("Host", []string{fullSlug, host}, ssh_config.GitIDCommonChildren{
@@ -79,12 +80,17 @@ var cmdRemoteRemove = &cli.Command{
 
 		c := gidOpenConfig(flConfigPath)
 
+		// Host *.gh.git-id
 		fullSlug := fmt.Sprintf("*.%s.%s", slug, flTLD)
 		if i, _ := c.GID_RootObjectCount("Host", []string{fullSlug}, false); i == 0 {
 			return fmt.Errorf("a remote with the slug %s does not exist", fullSlug)
 		}
 
 		// get children
+		// Host jc.gh.git-id
+		// Match OriginalHost github.com
+
+		// get defaults
 
 		// refuse
 

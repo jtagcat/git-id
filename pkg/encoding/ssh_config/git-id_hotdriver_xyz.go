@@ -13,19 +13,32 @@ func (c *Config) GID_PreappendInclude(i string) {
 		c.cfg...)
 }
 
+type miniTree struct {
+	SecondValues []string
+	Children     GitIDCommonChildren
+}
+
 // WARN: made _only_ for git-id, may break
 // secondValues: 2nd value of matches
 // suffix: value is handled as a suffix
-func (c *Config) GID_RootObjectCount(key string, values []string, wildcard bool) (matches int, secondValues []string) {
+func (c *Config) GID_RootObjectCount(key string, values []string, wildcard bool) (matches int, trees []miniTree) {
 	for _, root := range c.cfg {
 		if strings.EqualFold(root.Key, key) &&
 			valuesMatch(root.Values, values, wildcard) {
 
-			secondValues = append(secondValues, root.Values[1].Value)
+			var secondValues []string
+			for _, v := range root.Values {
+				secondValues = append(secondValues, v.Value)
+			}
+
+			trees = append(trees, miniTree{
+				SecondValues: secondValues,
+				Children:     childsDecode(root.Children),
+			})
 			matches++
 		}
 	}
-	return matches, secondValues
+	return matches, trees
 }
 
 // order and len() matters, "" means ignore
