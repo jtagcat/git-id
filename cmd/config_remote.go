@@ -36,13 +36,11 @@ var cmdRemote = &cli.Command{
 			fullSlug := tree.Values[0]
 
 			if strings.HasPrefix(fullSlug, "*.") {
-				if rs, ok := remoteSlug(fullSlug); ok {
-					t.AddRow([]string{
-						rs,
-						tree.Children.Hostname,
-						tree.Children.XDescription,
-					})
-				}
+				t.AddRow([]string{
+					remoteSlug(fullSlug),
+					tree.Children.Hostname,
+					tree.Children.XDescription,
+				})
 			}
 		}
 

@@ -145,13 +145,18 @@ func getInvalids(cmds []*cli.Command) (i []string) {
 }
 
 // potentially buggy if used unwell
-func remoteSlug(fullSlug string) (s string, ok bool) {
+func remoteSlug(fullSlug string) string {
 	if strings.Count(fullSlug, ".") < 2 {
-		return "", false
+		return ""
 	}
 
-	s = strings.TrimPrefix(fullSlug, "*.")
+	s := strings.TrimPrefix(fullSlug, "*.")
 	s, _, _ = spkg.CutLast(s, ".")
 
-	return s, true
+	return s
+}
+
+func identSlug(fullSlug, remoteSlug string) string {
+	i := strings.Index(fullSlug, remoteSlug)
+	return fullSlug[:i]
 }

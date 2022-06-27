@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gravitational/teleport/lib/asciitable"
+	spkg "github.com/jtagcat/git-id/pkg/encoding/ssh_config/pkg"
 	"github.com/urfave/cli/v2"
 )
 
@@ -18,13 +19,13 @@ func cmdRoot(ctx *cli.Context) error {
 	for _, tree := range trees {
 		fullSlug := tree.Values[0]
 		if strings.HasPrefix(fullSlug, "*.") {
-			if rs, ok := remoteSlug(fullSlug); ok {
+			if rs := remoteSlug(fullSlug); rs != "" {
 				hostMap[rs] = tree.Children.Hostname
 			}
 		}
 	}
 
-	t := asciitable.MakeTable([]string{"Identity", "Remote", "Host", "IdentityFile", "g: user.name", "g: user.email", "g: user.signingkey", "Description"})
+	t := asciitable.MakeTable([]string{"Identity", "Remote", "Real host", "IdentityFile", "g: user.name", "g: user.email", "g: user.signingkey", "Description"})
 
 	// if !ctx.Bool("all") {
 	// 	// NONMVP: get git repo, origin, host, remotes matching host, ids matching host
@@ -34,13 +35,14 @@ func cmdRoot(ctx *cli.Context) error {
 		fullSlug := tree.Values[0]
 		if !strings.HasPrefix(fullSlug, "*.") {
 			slug := strings.TrimSuffix(fullSlug, "."+tree.Children.XParent)
-			host, ok := hostMap[tree.Children.XParent]
+			rslug, _, _ := spkg.CutLast(tree.Children.XParent, ".")
+			host, ok := hostMap[rslug]
 			if !ok {
 				host = "<not found>"
 			}
 
 			t.AddRow([]string{
-				slug, tree.Children.XParent, host, tree.Children.IdentityFile,
+				slug, rslug, host, tree.Children.IdentityFile,
 				tree.Children.XGitConfigUsername, tree.Children.XGitConfigUserMail, tree.Children.XGitConfigSigningKey,
 				tree.Children.XDescription,
 			})

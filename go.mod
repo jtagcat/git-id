@@ -11,11 +11,6 @@ require (
 )
 
 require (
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-)
-
-require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/gravitational/teleport v3.2.17+incompatible
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
