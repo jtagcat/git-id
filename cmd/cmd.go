@@ -14,7 +14,7 @@ var (
 	// gitidSSHConfigRootXKeys = map[string]bool{"xheader": false}
 
 	// hardcodes
-	flTLD             = "git-id"
+	globalTLD         = "git-id"
 	userSSHConfigFile = "~/.ssh/config"
 
 	remote = "origin"

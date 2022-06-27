@@ -9,6 +9,8 @@ github.com/gogs/git-module v1.6.0 h1:71GdRM9/pFxGgSUz8t2DKmm3RYuHUnTjsOuFInJXnkM
 github.com/gogs/git-module v1.6.0/go.mod h1:8jFYhDxLUwEOhM2709l2CJXmoIIslobU1xszpT0NcAI=
 github.com/google/renameio/v2 v2.0.0 h1:UifI23ZTGY8Tt29JbYFiuyIU3eX+RNFtUwefq9qAhxg=
 github.com/google/renameio/v2 v2.0.0/go.mod h1:BtmJXm5YlszgC+TD4HOEEUFgkJP3nLxehU6hfe7jRt4=
+github.com/gravitational/teleport v3.2.17+incompatible h1:yOO/5p8z3JqH/KlQhxdybF0SxSjcPpdUZPk9VWVTMVM=
+github.com/gravitational/teleport v3.2.17+incompatible/go.mod h1:m0eatGeHK6TR5mlAkfvQQS+XAVyVOgeRUP+2Z4VksIY=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=

@@ -30,7 +30,7 @@ var cmdConfigDefault = &cli.Command{
 
 		if idfile == "" { // clear
 			// Match OriginalHost github.com
-			if ok := c.GIDRootObjectRemoveFirst("Match", []string{"OriginalHost", host}); !ok {
+			if ok := c.GID_RootObjectRemoveFirst("Match", []string{"OriginalHost", host}); !ok {
 				return fmt.Errorf("host %s does not have a default key set", host)
 			}
 			return c.Write()

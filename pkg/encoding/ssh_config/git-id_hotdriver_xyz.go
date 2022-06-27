@@ -14,14 +14,14 @@ func (c *Config) GID_PreappendInclude(i string) {
 		c.cfg...)
 }
 
-type miniTree struct {
+type MiniTree struct {
 	Values   []string
 	Children GitIDCommonChildren
 }
 
 // WARN: made _only_ for git-id, may break
 // suffix: value is handled as a suffix
-func (c *Config) GID_RootObjectCount(key string, values []string, suffix bool) (matches int, trees []miniTree) {
+func (c *Config) GID_RootObjects(key string, values []string, suffix bool) (matches int, trees []MiniTree) {
 	for _, root := range c.cfg {
 		if strings.EqualFold(root.Key, key) &&
 			valuesMatch(root.Values, values, suffix) {
@@ -31,7 +31,7 @@ func (c *Config) GID_RootObjectCount(key string, values []string, suffix bool) (
 				foundValues = append(foundValues, v.Value)
 			}
 
-			trees = append(trees, miniTree{
+			trees = append(trees, MiniTree{
 				Values:   foundValues,
 				Children: childsDecode(root.Children),
 			})
@@ -94,7 +94,7 @@ func (c *Config) GID_RootObjectSetFirst(key string, values []string, firstValueI
 }
 
 // WARN: made _only_ for git-id, may break
-func (c *Config) GIDRootObjectRemoveFirst(key string, values []string) (ok bool) {
+func (c *Config) GID_RootObjectRemoveFirst(key string, values []string) (ok bool) {
 	i := func(config []RawTopLevel) int {
 		for i, root := range config {
 			if strings.EqualFold(root.Key, key) {

@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	valid "github.com/asaskevich/govalidator"
+	"github.com/gravitational/teleport/lib/asciitable"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	"github.com/urfave/cli/v2"
 )
@@ -16,7 +18,40 @@ var cmdConfigRemote = &cli.Command{
 		cmdRemoteAdd,
 		cmdRemoteRemove,
 	},
-	// Action: *list*
+	Flags: []cli.Flag{
+		flagConfig,
+	},
+	Action: func(ctx *cli.Context) error {
+		if ctx.Args().Len() != 0 {
+			fmt.Println("Usage:", ctx.Command.ArgsUsage)
+			return fmt.Errorf("expected no arguments")
+		}
+
+		c := gidOpenConfig(ctx.Path("config"))
+
+		_, trees := c.GID_RootObjects("Host", []string{".git-id"}, true)
+
+		t := asciitable.MakeTable([]string{"Remote", "Description"})
+		for _, t := range trees {
+			fullSlug := t.Values[0]
+			if strings.HasPrefix(fullSlug, "*.") {
+				slug := strings.TrimPrefix("*.", strings.TrimSuffix(fullSlug, globalTLD))
+				t.AddRow([]string{})
+			}
+		}
+
+		// Create a table with three column headers.
+
+		// Add in multiple rows.
+		t.AddRow([]string{"b53bd9d3e04add33ac53edae1a2b3d4f", "auth", "30 Aug 18 23:31 UTC"})
+		t.AddRow([]string{"5ecde0ca17824454b21937109df2c2b5", "node", "30 Aug 18 23:31 UTC"})
+		t.AddRow([]string{"9333929146c08928a36466aea12df963", "trusted_cluster", "30 Aug 18 23:33 UTC"})
+
+		// Write the table to stdout.
+		fmt.Println(t.AsBuffer().String())
+
+		return c.Write()
+	},
 }
 
 // git-id remote add
@@ -47,7 +82,7 @@ var cmdRemoteAdd = &cli.Command{
 			return fmt.Errorf("slug would conflict with commands, please choose an another (shorter?)")
 		}
 
-		fullSlug := fmt.Sprintf("*.%s.%s", slug, flTLD)
+		fullSlug := fmt.Sprintf("*.%s.%s", slug, globalTLD)
 
 		host := args.Get(1) // don't validate
 
@@ -56,7 +91,7 @@ var cmdRemoteAdd = &cli.Command{
 		c := gidOpenConfig(ctx.Path("config"))
 
 		// Host *.gh.git-id
-		if i, trees := c.GID_RootObjectCount("Host", []string{fullSlug}, false); i > 0 {
+		if i, trees := c.GID_RootObjects("Host", []string{fullSlug}, false); i > 0 {
 			return fmt.Errorf("a remote with the slug %s already exists: %s", fullSlug, trees[0].Values)
 		}
 
@@ -96,12 +131,12 @@ var cmdRemoteRemove = &cli.Command{
 		recursive := ctx.Bool("recursive")
 
 		slug := args.First()
-		suffixSlug := fmt.Sprintf(".%s.%s", slug, flTLD)
+		suffixSlug := fmt.Sprintf(".%s.%s", slug, globalTLD)
 
 		c := gidOpenConfig(ctx.Path("config"))
 
 		// Host *.gh.git-id
-		i, trees := c.GID_RootObjectCount("Host", []string{suffixSlug}, true)
+		i, trees := c.GID_RootObjects("Host", []string{suffixSlug}, true)
 		if i == 0 {
 			return fmt.Errorf("remote %s does not exist", slug)
 		}
@@ -114,14 +149,14 @@ var cmdRemoteRemove = &cli.Command{
 					return fmt.Errorf("cannot delete remote %s: has attached identities (use --recursive)", slug)
 				}
 
-				if ok := c.GIDRootObjectRemoveFirst("Host", t.Values); !ok {
+				if ok := c.GID_RootObjectRemoveFirst("Host", t.Values); !ok {
 					return fmt.Errorf("race‽ (report bug?): identity doesn't exist, but it just did")
 				}
 			}
 		}
 
 		// remove remote
-		if ok := c.GIDRootObjectRemoveFirst("Host", []string{"*" + suffixSlug}); !ok {
+		if ok := c.GID_RootObjectRemoveFirst("Host", []string{"*" + suffixSlug}); !ok {
 			return fmt.Errorf("race‽ (report bug?): remote doesn't exist, but it just did")
 		}
 
