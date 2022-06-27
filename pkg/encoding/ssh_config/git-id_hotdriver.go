@@ -16,10 +16,10 @@ type GitIDCommonChildren struct {
 // WARN: made _only_ for git-id, may break
 func childsEncode(c GitIDCommonChildren) (raw []RawKeyword) {
 	// for-range??? reflection??
-	if c.IdentitiesOnly {
+	if c.XParent != "" {
 		raw = append(raw, RawKeyword{
-			Key:    "IdentitiesOnly",
-			Values: []RawValue{{Value: "true", Quoted: 2}},
+			Key:    "XParent",
+			Values: []RawValue{{Value: c.XParent, Quoted: 2}},
 		})
 	}
 
@@ -34,23 +34,23 @@ func childsEncode(c GitIDCommonChildren) (raw []RawKeyword) {
 		})
 	}
 
-	if c.IdentityFile != "" {
-		raw = append(raw, RawKeyword{
-			Key:    "IdentityFile",
-			Values: []RawValue{{Value: c.IdentityFile, Quoted: 2}},
-		})
-	}
-
 	if c.Hostname != "" {
 		raw = append(raw, RawKeyword{
 			Key:    "Hostname",
 			Values: []RawValue{{Value: c.Hostname, Quoted: 2}},
 		})
 	}
-	if c.XParent != "" {
+
+	if c.IdentityFile != "" {
 		raw = append(raw, RawKeyword{
-			Key:    "XParent",
-			Values: []RawValue{{Value: c.XParent, Quoted: 2}},
+			Key:    "IdentityFile",
+			Values: []RawValue{{Value: c.IdentityFile, Quoted: 2}},
+		})
+	}
+	if c.IdentitiesOnly {
+		raw = append(raw, RawKeyword{
+			Key:    "IdentitiesOnly",
+			Values: []RawValue{{Value: "true", Quoted: 2}},
 		})
 	}
 

@@ -25,15 +25,18 @@ var (
 // TODO: mention [-C] [-c, --config], putting it everywhere clutters
 var App = &cli.App{
 	Name:      "git-id",
-	Usage:     "Stupid git identity management: list / switch id",
-	ArgsUsage: "git-id <identity> | [-a, --all]",
+	Usage:     "Stupid git identity management (list | switch <id>)",
+	ArgsUsage: "git-id <identity>", // | [-a, --all]",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{Name: "all", Aliases: []string{"a"}, Usage: "list all identities (instead of current remote)"},
+		// &cli.BoolFlag{Name: "all", Aliases: []string{"a"}, Usage: "list all identities (instead of current remote)"},
 		flagConfig,
 	},
 	Commands: []*cli.Command{
-		cmdHow,
+		// action
+		cmdClone,
+		// switch is root
 		cmdWhoami,
+
 		// config
 		cmdAdd,
 		cmdSet,
@@ -41,14 +44,20 @@ var App = &cli.App{
 
 		cmdRemote,
 		cmdSetDefault,
+
+		// help
+		cmdHow,
 	},
 	Action: func(ctx *cli.Context) error {
 		args := ctx.Args()
-		if args.Len() == 0 {
+		switch args.Len() {
+		default:
+			return fmt.Errorf("expected 0 or 1 arguments")
+		case 0:
 			return cmdRoot(ctx)
+		case 1:
+			return cmdSwitch(ctx, args.First())
 		}
-
-		return fmt.Errorf("not implemented") // TODO:
 	},
 }
 

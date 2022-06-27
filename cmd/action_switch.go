@@ -1,5 +1,16 @@
 package cmd
 
+import (
+	"fmt"
+
+	"github.com/urfave/cli/v2"
+)
+
+// git-id <id>
+func cmdSwitch(ctx *cli.Context, t string) error {
+	return fmt.Errorf("not implemented")
+}
+
 // if identity provided is not unique, fallback to jc.gh (next domainpart)
 
 // no args: *list* [--all]

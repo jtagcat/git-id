@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gravitational/teleport/lib/asciitable"
+	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	spkg "github.com/jtagcat/git-id/pkg/encoding/ssh_config/pkg"
 	"github.com/urfave/cli/v2"
 )
@@ -66,7 +67,39 @@ var cmdAdd = &cli.Command{
 		&cli.StringFlag{Name: "signing-key", Aliases: []string{"sk"}, Usage: "git config user.signingKey"},
 		flagConfig,
 	},
-	Hidden: true,
+	Action: func(ctx *cli.Context) error {
+		args := ctx.Args()
+		if args.Len() != 3 {
+			return fmt.Errorf("expected exactly 3 arguments, got %d", args.Len())
+		}
+
+		c := gidOpenConfig(ctx.Path("config"))
+
+		rslug := args.Get(0)
+		rSuffixSlug := fmt.Sprintf("%s.%s", rslug, globalTLD)
+		if i, _ := c.GID_RootObjects("Host", []string{"*." + rSuffixSlug}, false); i == 0 {
+			return fmt.Errorf("remote %s does not exist", rslug)
+		}
+
+		slug := args.Get(1)
+		if err := validateSlug(slug); err != nil {
+			return err
+		}
+
+		if i, _ := c.GID_RootObjects("Host", []string{slug + rSuffixSlug}, false); i != 0 {
+			return fmt.Errorf("identity %s already exists under remote %s", slug, rslug)
+		}
+
+		idfile := args.Get(2) // not validating bc freedom
+
+		c.GID_RootObjectSetFirst("Host", []string{slug + "." + rSuffixSlug}, true, ssh_config.GitIDCommonChildren{
+			IdentityFile: idfile, IdentitiesOnly: idfile != "",
+			XGitConfigUsername: ctx.String("username"), XGitConfigUserMail: ctx.String("email"), XGitConfigSigningKey: ctx.String("signing-key"),
+			XDescription: ctx.String("description"), XParent: rSuffixSlug,
+		})
+
+		return c.Write()
+	},
 }
 
 // git-id  set

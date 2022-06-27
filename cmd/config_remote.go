@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	valid "github.com/asaskevich/govalidator"
 	"github.com/gravitational/teleport/lib/asciitable"
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	"github.com/urfave/cli/v2"
@@ -64,23 +63,12 @@ var cmdRemoteAdd = &cli.Command{
 		args := ctx.Args()
 		if args.Len() != 2 {
 			fmt.Println("Usage:", ctx.Command.ArgsUsage)
-			return fmt.Errorf("expected exactly 2 arguments")
+			return fmt.Errorf("expected exactly 2 arguments, got %d", args.Len())
 		}
 
 		slug := args.Get(0)
-
-		if strings.HasPrefix(slug, ".") || strings.HasSuffix(slug, ".") {
-			return fmt.Errorf("slug can't start or end with a dot")
-		}
-		if !valid.IsUTFLetterNumeric(
-			strings.ReplaceAll(slug, ".", "")) {
-			return fmt.Errorf("please choose a saner slug")
-		}
-		if len(slug) > 128 { // leave some for your userpart asw; not utf-8 len since it cancels out
-			return fmt.Errorf("please choose a shorter slug")
-		}
-		if in := inInvalids(slug); in {
-			return fmt.Errorf("slug would conflict with commands, please choose an another (shorter?)")
+		if err := validateSlug(slug); err != nil {
+			return err
 		}
 
 		fullSlug := fmt.Sprintf("*.%s.%s", slug, globalTLD)
@@ -97,9 +85,8 @@ var cmdRemoteAdd = &cli.Command{
 		}
 
 		c.GID_RootObjectSetFirst("Host", []string{fullSlug}, false, ssh_config.GitIDCommonChildren{
-			Hostname:       host,
-			IdentitiesOnly: true,
-			XDescription:   ctx.String("description"),
+			Hostname:     host,
+			XDescription: ctx.String("description"),
 		})
 
 		return c.Write()
@@ -127,7 +114,7 @@ var cmdRemoteRemove = &cli.Command{
 		args := ctx.Args()
 		if args.Len() != 1 {
 			fmt.Println("Usage:", ctx.Command.ArgsUsage)
-			return fmt.Errorf("expected exactly 1 argument")
+			return fmt.Errorf("expected exactly 1 argument, got %d", args.Len())
 		}
 
 		recursive := ctx.Bool("recursive")

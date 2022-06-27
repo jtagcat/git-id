@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
 	spkg "github.com/jtagcat/git-id/pkg/encoding/ssh_config/pkg"
+
+	valid "github.com/asaskevich/govalidator"
 	"github.com/urfave/cli/v2"
 )
 
@@ -159,4 +162,22 @@ func remoteSlug(fullSlug string) string {
 func identSlug(fullSlug, remoteSlug string) string {
 	i := strings.Index(fullSlug, remoteSlug)
 	return fullSlug[:i]
+}
+
+func validateSlug(slug string) error {
+	if strings.HasPrefix(slug, ".") || strings.HasSuffix(slug, ".") {
+		return fmt.Errorf("slug can't start or end with a dot")
+	}
+	if !valid.IsUTFLetterNumeric(
+		strings.ReplaceAll(slug, ".", "")) {
+		return fmt.Errorf("please choose a saner slug")
+	}
+	if len(slug) > 128 { // leave some for your userpart asw; not utf-8 len since it cancels out
+		return fmt.Errorf("please choose a shorter slug")
+	}
+	if in := inInvalids(slug); in {
+		return fmt.Errorf("slug would conflict with commands, please choose an another (shorter?)")
+	}
+
+	return nil
 }

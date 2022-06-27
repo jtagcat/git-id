@@ -20,7 +20,7 @@ var cmdSetDefault = &cli.Command{
 		args := ctx.Args()
 		if args.Len() != 2 {
 			fmt.Println("Usage:", ctx.Command.ArgsUsage)
-			return fmt.Errorf("expected exactly 2 arguments (hint: to clear, use \"\"")
+			return fmt.Errorf("expected exactly 2 arguments, got %d (hint: to clear, use \"\"", args.Len())
 		}
 
 		host := args.Get(0)
