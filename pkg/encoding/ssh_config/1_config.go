@@ -47,7 +47,7 @@ func OpenConfig(o Opts, name string) (*Config, bool, error) {
 		return nil, false, fmt.Errorf("couldn't stat config at %s: %w", path, err)
 	}
 
-	f, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0o600)
+	f, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0o644)
 	if err != nil {
 		return nil, init, fmt.Errorf("couldn't open config file at %s: %w", path, err)
 	}

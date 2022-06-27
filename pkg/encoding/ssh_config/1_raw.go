@@ -153,7 +153,7 @@ func Decode(o Opts, data io.Reader) ([]RawTopLevel, error) {
 			}
 			// basic 'does (non-x)key exist' [macro D]
 			if _, ok := keywordKMap[locaseKey]; !ok {
-				return cfg, fmt.Errorf("while parsing line %d: %w", i, ErrInvalidKeyword)
+				return cfg, fmt.Errorf("while parsing line %d: %w: %s", i, ErrInvalidKeyword, line.Key)
 			}
 		}
 
