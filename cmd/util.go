@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"log"
+	"strings"
 
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
+	"github.com/urfave/cli/v2"
 )
 
 // 	hostParts := strings.Split(host, ".")
@@ -105,4 +107,34 @@ func gidOpenConfig(path string) *ssh_config.Config {
 	log.Printf("included config in ssh_config at %s", path)
 
 	return c
+}
+
+func inInvalids(name string) (in bool) {
+	for _, i := range invalidNames {
+		if strings.EqualFold(i, name) {
+			return true
+		}
+	}
+	return false
+}
+
+var invalidNames []string
+
+func init() {
+	invalidNames = getinvalidsRoot(App)
+}
+
+func getinvalidsRoot(a *cli.App) (i []string) {
+	for _, c := range a.Commands {
+		i = append(getInvalids(c.Subcommands))
+	}
+	return i
+}
+
+func getInvalids(cmds []*cli.Command) (i []string) {
+	for _, c := range cmds {
+		i = append(i, c.Names()...)
+		i = append(i, getInvalids(c.Subcommands)...)
+	}
+	return i
 }

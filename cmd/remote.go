@@ -8,10 +8,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var flagConfig = &cli.PathFlag{Name: "config", Value: "~/.ssh/git-id.conf", Usage: "path to git-id config file"}
-
 // git-id remote
-var cmdRemote = &cli.Command{
+var cmdConfigRemote = &cli.Command{
 	Name:  "remote",
 	Usage: "Manage remotes",
 	Subcommands: []*cli.Command{
@@ -26,7 +24,7 @@ var cmdRemoteAdd = &cli.Command{
 	Usage:     "Add a remote",
 	ArgsUsage: "git-id remote add <remote slug> <actual host> [-d description]",
 	Flags: []cli.Flag{
-		&cli.StringFlag{Name: "description", Aliases: []string{"d"}, Usage: "git-id-only, memory refresher"},
+		flagDesc,
 		flagConfig,
 	},
 	Action: func(ctx *cli.Context) error {
@@ -54,7 +52,7 @@ var cmdRemoteAdd = &cli.Command{
 
 		//// START ////
 
-		c := gidOpenConfig(ctx.String("config"))
+		c := gidOpenConfig(ctx.Path("config"))
 
 		// Host *.gh.git-id
 		if i, trees := c.GID_RootObjectCount("Host", []string{fullSlug}, false); i > 0 {
@@ -75,12 +73,18 @@ var cmdRemoteAdd = &cli.Command{
 var cmdRemoteRemove = &cli.Command{
 	Name:      "rm",
 	Usage:     "Remove a remote",
-	ArgsUsage: "git-id remote rm <remote slug> [--recursive]",
+	ArgsUsage: "git-id remote rm <remote slug> <-y, --yes> [-r, --recursive]",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{Name: "recursive", Aliases: []string{"r", "R"}, Usage: "remove remote and associated identities recursively"},
+		&cli.BoolFlag{Name: "yes", Aliases: []string{"-y"}, Usage: "acknowledge potential breakage"},
+		&cli.BoolFlag{Name: "recursive", Aliases: []string{"r"}, Usage: "remove remote and associated identities recursively"},
 		flagConfig,
 	},
 	Action: func(ctx *cli.Context) error {
+		if !ctx.Bool("yes") {
+			fmt.Println("Usage:", ctx.Command.ArgsUsage)
+			return fmt.Errorf("After a remote is removed, all git repos using it will hold broken links. (-y, --yes)")
+		}
+
 		//// ARGS ////
 		args := ctx.Args()
 		if args.Len() != 1 {
@@ -93,7 +97,7 @@ var cmdRemoteRemove = &cli.Command{
 		slug := args.First()
 		suffixSlug := fmt.Sprintf(".%s.%s", slug, flTLD)
 
-		c := gidOpenConfig(ctx.String("config"))
+		c := gidOpenConfig(ctx.Path("config"))
 
 		// Host *.gh.git-id
 		i, trees := c.GID_RootObjectCount("Host", []string{suffixSlug}, true)
