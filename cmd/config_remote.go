@@ -93,6 +93,8 @@ var cmdRemoteAdd = &cli.Command{
 	},
 }
 
+var flagAckRemove = &cli.BoolFlag{Name: "yes", Aliases: []string{"y"}, Usage: "acknowledge potential breakage"}
+
 // NONMVP: it'd be nice if it showed u a list of ids + repos :)
 // git-id remote rm
 var cmdRemoteRemove = &cli.Command{
@@ -100,7 +102,7 @@ var cmdRemoteRemove = &cli.Command{
 	Usage:     "Remove a remote",
 	ArgsUsage: "git-id remote rm <remote slug> <-y, --yes> [-r, --recursive]",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{Name: "yes", Aliases: []string{"y"}, Usage: "acknowledge potential breakage"},
+		flagAckRemove,
 		&cli.BoolFlag{Name: "recursive", Aliases: []string{"r"}, Usage: "remove remote and associated identities recursively"},
 		flagConfig,
 	},

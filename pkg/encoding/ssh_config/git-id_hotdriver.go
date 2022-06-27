@@ -9,7 +9,7 @@ import "strings"
 type GitIDCommonChildren struct {
 	IdentitiesOnly bool
 	IdentityFile, Hostname, XDescription,
-	XGitConfigUsername, XGitConfigUserMail, XGitConfigSigningKey,
+	XGitConfigUsername, XGitConfigUserEmail, XGitConfigSigningKey,
 	XParent string
 }
 
@@ -61,10 +61,10 @@ func childsEncode(c GitIDCommonChildren) (raw []RawKeyword) {
 		})
 	}
 
-	if c.XGitConfigUserMail != "" {
+	if c.XGitConfigUserEmail != "" {
 		raw = append(raw, RawKeyword{
 			Key:    "XGitConfig",
-			Values: []RawValue{{Value: "user.email"}, {Value: c.XGitConfigUserMail, Quoted: 2}},
+			Values: []RawValue{{Value: "user.email"}, {Value: c.XGitConfigUserEmail, Quoted: 2}},
 		})
 	}
 
@@ -106,7 +106,7 @@ func childsDecode(raw []RawKeyword) (c GitIDCommonChildren) {
 			case "user.name":
 				c.XGitConfigUsername = r.Values[1].Value
 			case "user.email":
-				c.XGitConfigUserMail = r.Values[1].Value
+				c.XGitConfigUserEmail = r.Values[1].Value
 			case "user.signingkey":
 				c.XGitConfigSigningKey = r.Values[1].Value
 			}

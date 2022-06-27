@@ -44,7 +44,7 @@ func cmdRoot(ctx *cli.Context) error {
 
 			t.AddRow([]string{
 				slug, rslug, host, tree.Children.IdentityFile,
-				tree.Children.XGitConfigUsername, tree.Children.XGitConfigUserMail, tree.Children.XGitConfigSigningKey,
+				tree.Children.XGitConfigUsername, tree.Children.XGitConfigUserEmail, tree.Children.XGitConfigSigningKey,
 				tree.Children.XDescription,
 			})
 		}
@@ -55,6 +55,12 @@ func cmdRoot(ctx *cli.Context) error {
 	return nil
 }
 
+var (
+	flagGitUsername   = &cli.StringFlag{Name: "username", Aliases: []string{"u"}, Usage: "git config user.name"}
+	flagGitEmail      = &cli.StringFlag{Name: "email", Aliases: []string{"e"}, Usage: "git config user.email"}
+	flagGitSigningkey = &cli.StringFlag{Name: "signing-key", Aliases: []string{"sk"}, Usage: "git config user.signingKey"}
+)
+
 // git-id add
 var cmdAdd = &cli.Command{
 	Name:      "add",
@@ -62,9 +68,7 @@ var cmdAdd = &cli.Command{
 	ArgsUsage: "git-id add <remote> <identity> <IdentityFile> [-d, --description] [-u, --username] [-e, --email] [-sk, --signing-key]",
 	Flags: []cli.Flag{
 		flagDesc,
-		&cli.StringFlag{Name: "username", Aliases: []string{"u"}, Usage: "git config user.name"},
-		&cli.StringFlag{Name: "email", Aliases: []string{"e"}, Usage: "git config user.email"},
-		&cli.StringFlag{Name: "signing-key", Aliases: []string{"sk"}, Usage: "git config user.signingKey"},
+		flagGitUsername, flagGitEmail, flagGitSigningkey,
 		flagConfig,
 	},
 	Action: func(ctx *cli.Context) error {
@@ -86,7 +90,7 @@ var cmdAdd = &cli.Command{
 			return err
 		}
 
-		if i, _ := c.GID_RootObjects("Host", []string{slug + rSuffixSlug}, false); i != 0 {
+		if i, _ := c.GID_RootObjects("Host", []string{slug + "." + rSuffixSlug}, false); i > 0 {
 			return fmt.Errorf("identity %s already exists under remote %s", slug, rslug)
 		}
 
@@ -94,7 +98,7 @@ var cmdAdd = &cli.Command{
 
 		c.GID_RootObjectSetFirst("Host", []string{slug + "." + rSuffixSlug}, true, ssh_config.GitIDCommonChildren{
 			IdentityFile: idfile, IdentitiesOnly: idfile != "",
-			XGitConfigUsername: ctx.String("username"), XGitConfigUserMail: ctx.String("email"), XGitConfigSigningKey: ctx.String("signing-key"),
+			XGitConfigUsername: ctx.String("username"), XGitConfigUserEmail: ctx.String("email"), XGitConfigSigningKey: ctx.String("signing-key"),
 			XDescription: ctx.String("description"), XParent: rSuffixSlug,
 		})
 
@@ -105,21 +109,52 @@ var cmdAdd = &cli.Command{
 // git-id  set
 var cmdSet = &cli.Command{
 	Name:      "set",
-	Usage:     "Add an identity",
-	ArgsUsage: "git-id set <remote> <identity> [-i IdentityFile] [-d, --description] [-u, --username] [-e, --email] [-sk, --signing-key]",
+	Usage:     "Set attributes of an identity",
+	ArgsUsage: "git-id set <remote> <identity> [-i, --idfile IdentityFile] [-d, --description] [-u, --username] [-e, --email] [-sk, --signing-key]",
 	Flags: []cli.Flag{
-		&cli.PathFlag{Name: "username", Aliases: []string{"u"}, Usage: "git config user.name"},
+		&cli.PathFlag{Name: "idfile", Aliases: []string{"i"}, Usage: "IdentityFile to set"},
 		flagDesc,
-		&cli.StringFlag{Name: "username", Aliases: []string{"u"}, Usage: "git config user.name"},
-		&cli.StringFlag{Name: "email", Aliases: []string{"e"}, Usage: "git config user.email"},
-		&cli.StringFlag{Name: "signing-key", Aliases: []string{"sk"}, Usage: "git config user.signingKey"},
+		flagGitUsername, flagGitEmail, flagGitSigningkey,
 		flagConfig,
 	},
-	Hidden: true,
-	// -t OR -u OR both: test
-	// -u: get non-default user
-	// id: use that OR get from pwd / -C
-	// ...
+	Action: func(ctx *cli.Context) error {
+		args := ctx.Args()
+		if args.Len() != 2 {
+			return fmt.Errorf("expected exactly 2 arguments, got %d", args.Len())
+		}
+
+		c := gidOpenConfig(ctx.Path("config"))
+
+		rslug, slug := args.Get(0), args.Get(1)
+		fullSlug := fmt.Sprintf("%s.%s.%s", slug, rslug, globalTLD)
+
+		i, trees := c.GID_RootObjects("Host", []string{fullSlug}, false)
+		if i == 0 {
+			return fmt.Errorf("identity %s does not exist under remote %s", slug, rslug)
+		}
+
+		tree := trees[0]
+
+		if ctx.IsSet("idfile") {
+			tree.Children.IdentityFile = ctx.String("idfile")
+		}
+		if ctx.IsSet("description") {
+			tree.Children.XDescription = ctx.String("description")
+		}
+		if ctx.IsSet("username") {
+			tree.Children.XGitConfigUsername = ctx.String("username")
+		}
+		if ctx.IsSet("email") {
+			tree.Children.XGitConfigUserEmail = ctx.String("email")
+		}
+		if ctx.IsSet("signing-key") {
+			tree.Children.XGitConfigSigningKey = ctx.String("signing-key")
+		}
+
+		c.GID_RootObjectSetFirst("Host", []string{fullSlug}, false, tree.Children)
+
+		return c.Write()
+	},
 }
 
 // git-id remove
@@ -128,8 +163,27 @@ var cmdRemove = &cli.Command{
 	Usage:     "Remove an identity",
 	ArgsUsage: "git-id remove <remote> <identity> <-y, --yes>",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{Name: "yes", Aliases: []string{"-y"}, Usage: "acknowledge potential breakage"},
+		flagAckRemove,
 		flagConfig,
 	},
-	Hidden: true,
+	Action: func(ctx *cli.Context) error {
+		args := ctx.Args()
+		if args.Len() != 2 {
+			return fmt.Errorf("expected exactly 2 arguments, got %d", args.Len())
+		}
+
+		c := gidOpenConfig(ctx.Path("config"))
+
+		rslug, slug := args.Get(0), args.Get(1)
+		fullSlug := fmt.Sprintf("%s.%s.%s", slug, rslug, globalTLD)
+
+		i, _ := c.GID_RootObjects("Host", []string{fullSlug}, false)
+		if i == 0 {
+			return fmt.Errorf("identity %s does not exist under remote %s", slug, rslug)
+		}
+
+		c.GID_RootObjectRemoveFirst("Host", []string{fullSlug})
+
+		return c.Write()
+	},
 }
