@@ -7,6 +7,8 @@ package cmd
 
 // has args: switch to ident
 
+// collect where ident is used for removal
+
 //
 // import (
 // "os"

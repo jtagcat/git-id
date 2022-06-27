@@ -32,25 +32,16 @@ var cmdConfigRemote = &cli.Command{
 		_, trees := c.GID_RootObjects("Host", []string{".git-id"}, true)
 
 		t := asciitable.MakeTable([]string{"Remote", "Description"})
-		for _, t := range trees {
-			fullSlug := t.Values[0]
+		for _, tree := range trees {
+			fullSlug := tree.Values[0]
 			if strings.HasPrefix(fullSlug, "*.") {
-				slug := strings.TrimPrefix("*.", strings.TrimSuffix(fullSlug, globalTLD))
-				t.AddRow([]string{})
+				slug := strings.TrimSuffix(strings.TrimPrefix(fullSlug, "*."), "."+globalTLD)
+				t.AddRow([]string{slug, tree.Children.XDescription})
 			}
 		}
 
-		// Create a table with three column headers.
-
-		// Add in multiple rows.
-		t.AddRow([]string{"b53bd9d3e04add33ac53edae1a2b3d4f", "auth", "30 Aug 18 23:31 UTC"})
-		t.AddRow([]string{"5ecde0ca17824454b21937109df2c2b5", "node", "30 Aug 18 23:31 UTC"})
-		t.AddRow([]string{"9333929146c08928a36466aea12df963", "trusted_cluster", "30 Aug 18 23:33 UTC"})
-
-		// Write the table to stdout.
 		fmt.Println(t.AsBuffer().String())
-
-		return c.Write()
+		return nil
 	},
 }
 
