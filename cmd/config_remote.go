@@ -11,7 +11,7 @@ import (
 )
 
 // git-id remote
-var cmdConfigRemote = &cli.Command{
+var cmdRemote = &cli.Command{
 	Name:  "remote",
 	Usage: "Manage remotes",
 	Subcommands: []*cli.Command{
@@ -29,14 +29,17 @@ var cmdConfigRemote = &cli.Command{
 
 		c := gidOpenConfig(ctx.Path("config"))
 
-		_, trees := c.GID_RootObjects("Host", []string{".git-id"}, true)
+		_, trees := c.GID_RootObjects("Host", []string{"." + globalTLD}, true)
 
-		t := asciitable.MakeTable([]string{"Remote", "Description"})
+		t := asciitable.MakeTable([]string{"Remote", "Host", "Description"})
 		for _, tree := range trees {
 			fullSlug := tree.Values[0]
 			if strings.HasPrefix(fullSlug, "*.") {
-				slug := strings.TrimSuffix(strings.TrimPrefix(fullSlug, "*."), "."+globalTLD)
-				t.AddRow([]string{slug, tree.Children.XDescription})
+				t.AddRow([]string{
+					remoteSlug(fullSlug),
+					tree.Children.Hostname,
+					tree.Children.XDescription,
+				})
 			}
 		}
 
@@ -63,10 +66,15 @@ var cmdRemoteAdd = &cli.Command{
 		}
 
 		slug := args.Get(0)
-		if !valid.IsUTFLetterNumeric(slug) {
+
+		if strings.HasPrefix(slug, ".") || strings.HasSuffix(slug, ".") {
+			return fmt.Errorf("slug can't start or end with a dot")
+		}
+		if !valid.IsUTFLetterNumeric(
+			strings.ReplaceAll(slug, ".", "")) {
 			return fmt.Errorf("please choose a saner slug")
 		}
-		if len(slug) > 200 { // leave some for your userpart asw; not utf-8 len since it cancels out
+		if len(slug) > 128 { // leave some for your userpart asw; not utf-8 len since it cancels out
 			return fmt.Errorf("please choose a shorter slug")
 		}
 		if in := inInvalids(slug); in {

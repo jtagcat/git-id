@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/urfave/cli/v2"
 )
 
@@ -23,25 +25,30 @@ var (
 // TODO: mention [-C] [-c, --config], putting it everywhere clutters
 var App = &cli.App{
 	Name:      "git-id",
-	Usage:     "Stupid git identity management",
-	ArgsUsage: "git-id <identity>",
+	Usage:     "Stupid git identity management: list / switch id",
+	ArgsUsage: "git-id <identity> | [-a, --all]",
 	Flags: []cli.Flag{
-		&cli.PathFlag{Name: "config", Value: "~/.ssh/git-id.conf", Usage: "path to git-id config file"},
+		&cli.BoolFlag{Name: "all", Aliases: []string{"a"}, Usage: "list all identities (instead of current remote)"},
+		flagConfig,
 	},
 	Commands: []*cli.Command{
-		cmdConfig,
 		cmdHow,
 		cmdWhoami,
-	},
-}
+		// config
+		cmdAdd,
+		cmdSet,
+		cmdRemove,
 
-var cmdConfig = &cli.Command{
-	Name:    "config",
-	Aliases: []string{"conf", "configure"},
-	Subcommands: []*cli.Command{
-		cmdConfigId,
-		cmdConfigRemote,
-		cmdConfigDefault,
+		cmdRemote,
+		cmdSetDefault,
+	},
+	Action: func(ctx *cli.Context) error {
+		args := ctx.Args()
+		if args.Len() == 0 {
+			return cmdRoot(ctx)
+		}
+
+		return fmt.Errorf("not implemented") // TODO:
 	},
 }
 

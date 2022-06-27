@@ -77,6 +77,7 @@ func gidOpenConfig(path string) *ssh_config.Config {
 		SubXKeys: []string{
 			"XDescription",
 			"XGitConfig",
+			"XParentSlug",
 		},
 		Indent: "  ",
 	}, path)
@@ -140,4 +141,8 @@ func getInvalids(cmds []*cli.Command) (i []string) {
 			getInvalids(c.Subcommands)...)
 	}
 	return i
+}
+
+func remoteSlug(fullSlug string) string {
+	return strings.TrimSuffix(strings.TrimPrefix(fullSlug, "*."), "."+globalTLD)
 }

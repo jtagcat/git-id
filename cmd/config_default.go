@@ -8,8 +8,8 @@ import (
 )
 
 // git-id config default
-var cmdConfigDefault = &cli.Command{
-	Name:      "default",
+var cmdSetDefault = &cli.Command{
+	Name:      "set-default",
 	Usage:     "Set default ssh key for host (not remote), or clear it",
 	ArgsUsage: "git-id set-default <host> <IdentityFile>",
 	Flags: []cli.Flag{
