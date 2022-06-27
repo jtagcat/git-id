@@ -7,6 +7,9 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// upstream bug: https://github.com/urfave/cli/issues/1217
+var cmdDefaultUsageBug = "git-id default <host> <default IdentityFile>"
+
 // git id default
 var cmdDefault = &cli.Command{
 	Name:  "default",
@@ -15,7 +18,7 @@ var cmdDefault = &cli.Command{
 		cmdDefaultClear,
 	},
 
-	ArgsUsage: "git-id default <host> <default IdentityFile>",
+	ArgsUsage: cmdDefaultUsageBug,
 	Flags: []cli.Flag{
 		flagConfig,
 	},
@@ -23,14 +26,16 @@ var cmdDefault = &cli.Command{
 		//// ARGS ////
 		args := ctx.Args()
 		if args.Len() != 2 {
-			fmt.Println("Usage:", ctx.Command.ArgsUsage)
+			// upstream bug: https://github.com/urfave/cli/issues/1217
+			// fmt.Println("Usage:", ctx.Command.ArgsUsage)
+			fmt.Println(cmdDefaultUsageBug)
 			return fmt.Errorf("expected exactly 2 arguments")
 		}
 
 		host := args.Get(0)
 		idfile := args.Get(1)
 
-		c := gidOpenConfig(flConfigPath)
+		c := gidOpenConfig(ctx.String("config"))
 
 		// Match OriginalHost github.com
 		c.GID_RootObjectSetFirst("Match", []string{"OriginalHost", host}, true, ssh_config.GitIDCommonChildren{
@@ -57,7 +62,7 @@ var cmdDefaultClear = &cli.Command{
 
 		host := args.Get(0)
 
-		c := gidOpenConfig(flConfigPath)
+		c := gidOpenConfig(ctx.String("config"))
 
 		// Match OriginalHost github.com
 		if ok := c.GIDRootObjectRemoveFirst("Match", []string{"OriginalHost", host}); !ok {

@@ -21,10 +21,10 @@ type miniTree struct {
 
 // WARN: made _only_ for git-id, may break
 // suffix: value is handled as a suffix
-func (c *Config) GID_RootObjectCount(key string, values []string, wildcard bool) (matches int, trees []miniTree) {
+func (c *Config) GID_RootObjectCount(key string, values []string, suffix bool) (matches int, trees []miniTree) {
 	for _, root := range c.cfg {
 		if strings.EqualFold(root.Key, key) &&
-			valuesMatch(root.Values, values, wildcard) {
+			valuesMatch(root.Values, values, suffix) {
 
 			var foundValues []string
 			for _, v := range root.Values {
@@ -54,10 +54,10 @@ func valuesMatch(against []RawValue, values []string, suffix bool) bool {
 				if !strings.HasSuffix(strings.ToLower(a.Value), strings.ToLower(values[i])) {
 					return false
 				}
-			}
-
-			if !strings.EqualFold(a.Value, values[i]) {
-				return false
+			} else {
+				if !strings.EqualFold(a.Value, values[i]) {
+					return false
+				}
 			}
 		}
 	}

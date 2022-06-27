@@ -89,12 +89,12 @@ var cmdRemoteRemove = &cli.Command{
 		slug := args.First()
 		suffixSlug := fmt.Sprintf(".%s.%s", slug, flTLD)
 
-		c := gidOpenConfig(flConfigPath)
+		c := gidOpenConfig(ctx.String("config"))
 
 		// Host *.gh.git-id
 		i, trees := c.GID_RootObjectCount("Host", []string{suffixSlug}, true)
 		if i == 0 {
-			return fmt.Errorf("remote %s does not exist", suffixSlug)
+			return fmt.Errorf("remote %s does not exist", slug)
 		}
 
 		// get/remove children identities
@@ -112,7 +112,7 @@ var cmdRemoteRemove = &cli.Command{
 		}
 
 		// remove remote
-		if ok := c.GIDRootObjectRemoveFirst("Host", []string{suffixSlug}); !ok {
+		if ok := c.GIDRootObjectRemoveFirst("Host", []string{"*" + suffixSlug}); !ok {
 			return fmt.Errorf("race‽ (report bug?): remote doesn't exist, but it just did")
 		}
 

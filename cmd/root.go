@@ -34,10 +34,9 @@ var App = &cli.App{
 
 // NOTMVP: git branch, ncdu-style, whatever arrow keys / fzf / quick switcher
 
-var (
-	flConfigPath string
-	flActPath    string
-)
+// var (
+// flActPath    string
+// )
 
 // func init() {
 // 	rootCmd.PersistentFlags().StringVarP(&flActPath, "", "C", "", "Act on `path` instead of working directory.") //**HACK1** bugbug upstream: https://github.com/spf13/pflag/issues/139
