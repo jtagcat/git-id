@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// git-id config id
+// git-id
 func cmdRoot(ctx *cli.Context) error {
 	c := gidOpenConfig(ctx.Path("config"))
 
@@ -24,27 +24,39 @@ func cmdRoot(ctx *cli.Context) error {
 		}
 	}
 
-	t := asciitable.MakeTable([]string{"Identity", "Remote", "Host", "", "", "", "", "", "", "", "Description"})
+	t := asciitable.MakeTable([]string{"Identity", "Remote", "Host", "IdentityFile", "g: user.name", "g: user.email", "g: user.signingkey", "Description"})
 
-	if ctx.Bool("all") {
-		for _, tree := range trees {
-			fullSlug := tree.Values[0]
-			if !strings.HasPrefix(fullSlug, "*.") {
-				// slug := strings.TrimSuffix() NO DO NOT USE TRIM
+	// if !ctx.Bool("all") {
+	// 	// NONMVP: get git repo, origin, host, remotes matching host, ids matching host
+	// }
+
+	for _, tree := range trees {
+		fullSlug := tree.Values[0]
+		if !strings.HasPrefix(fullSlug, "*.") {
+			slug := strings.TrimSuffix(fullSlug, "."+tree.Children.XParent)
+			host, ok := hostMap[tree.Children.XParent]
+			if !ok {
+				host = "<not found>"
 			}
+
+			t.AddRow([]string{
+				slug, tree.Children.XParent, host, tree.Children.IdentityFile,
+				tree.Children.XGitConfigUsername, tree.Children.XGitConfigUserMail, tree.Children.XGitConfigSigningKey,
+				tree.Children.XDescription,
+			})
 		}
-		return nil
 	}
 
+	t.DiscardEmpty()
 	fmt.Println(t.AsBuffer().String())
 	return nil
 }
 
-// git-id config id add
+// git-id add
 var cmdAdd = &cli.Command{
 	Name:      "add",
 	Usage:     "Add an identity",
-	ArgsUsage: "git-id config id add <remote> <identity> <IdentityFile> [-d, --description] [-u, --username] [-e, --email] [-sk, --signing-key]",
+	ArgsUsage: "git-id add <remote> <identity> <IdentityFile> [-d, --description] [-u, --username] [-e, --email] [-sk, --signing-key]",
 	Flags: []cli.Flag{
 		flagDesc,
 		&cli.StringFlag{Name: "username", Aliases: []string{"u"}, Usage: "git config user.name"},
@@ -55,11 +67,11 @@ var cmdAdd = &cli.Command{
 	Hidden: true,
 }
 
-// git-id config id set
+// git-id  set
 var cmdSet = &cli.Command{
 	Name:      "set",
 	Usage:     "Add an identity",
-	ArgsUsage: "git-id config id <remote> <identity> [-i IdentityFile] [-d, --description] [-u, --username] [-e, --email] [-sk, --signing-key]",
+	ArgsUsage: "git-id set <remote> <identity> [-i IdentityFile] [-d, --description] [-u, --username] [-e, --email] [-sk, --signing-key]",
 	Flags: []cli.Flag{
 		&cli.PathFlag{Name: "username", Aliases: []string{"u"}, Usage: "git config user.name"},
 		flagDesc,

@@ -18,14 +18,15 @@ func (c *Config) GID_PreappendInclude(i string) {
 		c.cfg...)
 }
 
-type MiniTree struct {
+// WARN: made _only_ for git-id, may break
+type GIDTree struct {
 	Values   []string
 	Children GitIDCommonChildren
 }
 
 // WARN: made _only_ for git-id, may break
 // suffix: value is handled as a suffix
-func (c *Config) GID_RootObjects(key string, values []string, suffix bool) (matches int, trees []MiniTree) {
+func (c *Config) GID_RootObjects(key string, values []string, suffix bool) (matches int, trees []GIDTree) {
 	for _, root := range c.cfg {
 		if strings.EqualFold(root.Key, key) &&
 			valuesMatch(root.Values, values, suffix) {
@@ -35,7 +36,7 @@ func (c *Config) GID_RootObjects(key string, values []string, suffix bool) (matc
 				foundValues = append(foundValues, v.Value)
 			}
 
-			trees = append(trees, MiniTree{
+			trees = append(trees, GIDTree{
 				Values:   foundValues,
 				Children: childsDecode(root.Children),
 			})

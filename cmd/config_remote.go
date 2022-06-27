@@ -46,6 +46,7 @@ var cmdRemote = &cli.Command{
 			}
 		}
 
+		t.DiscardEmpty()
 		fmt.Println(t.AsBuffer().String())
 		return nil
 	},
@@ -107,6 +108,7 @@ var cmdRemoteAdd = &cli.Command{
 	},
 }
 
+// NONMVP: it'd be nice if it showed u a list of ids + repos :)
 // git-id remote rm
 var cmdRemoteRemove = &cli.Command{
 	Name:      "rm",
@@ -146,7 +148,9 @@ var cmdRemoteRemove = &cli.Command{
 		// get/remove children identities
 		// Host jc.gh.git-id
 		for _, t := range trees {
-			if t.Children.XParent == suffixSlug || t.Values[0] != "*"+suffixSlug {
+			if t.Children.XParent == suffixSlug ||
+				t.Values[0] != "*"+suffixSlug { // for legacy / just in case there is no parent
+
 				if !recursive {
 					return fmt.Errorf("cannot delete remote %s: has attached identities (use --recursive)", slug)
 				}

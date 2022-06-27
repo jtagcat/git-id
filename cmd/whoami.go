@@ -7,11 +7,10 @@ var cmdWhoami = &cli.Command{
 	Name:      "remote",
 	Aliases:   []string{"who"},
 	Usage:     "Manage remotes",
-	ArgsUsage: "git-id whoami [id] [-1] [-t, --test] [-u, --test-user]",
+	ArgsUsage: "git-id whoami [id] [-1] [-t, --test]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{Name: "1", Aliases: []string{"u"}, Usage: "(without any other options) print only id"},
 		&cli.BoolFlag{Name: "test", Aliases: []string{"t"}, Usage: "try to ssh to git@host"},
-		&cli.StringFlag{Name: "test-user", Aliases: []string{"u"}, Usage: "try to ssh to <user>@host"},
 		flagChdir, flagConfig,
 	},
 	Hidden: true,
