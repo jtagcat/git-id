@@ -16,6 +16,7 @@ var cmdConfigRemote = &cli.Command{
 		cmdRemoteAdd,
 		cmdRemoteRemove,
 	},
+	// Action: *list*
 }
 
 // git-id remote add

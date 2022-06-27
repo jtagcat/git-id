@@ -5,6 +5,7 @@ import "github.com/urfave/cli/v2"
 // git-id whoami
 var cmdWhoami = &cli.Command{
 	Name:      "remote",
+	Aliases:   []string{"who"},
 	Usage:     "Manage remotes",
 	ArgsUsage: "git-id whoami [id] [-1] [-t, --test] [-u, --test-user]",
 	Flags: []cli.Flag{

@@ -126,15 +126,18 @@ func init() {
 
 func getinvalidsRoot(a *cli.App) (i []string) {
 	for _, c := range a.Commands {
-		i = append(getInvalids(c.Subcommands))
+		i = append(i, getInvalids(c.Subcommands)...)
 	}
 	return i
 }
 
 func getInvalids(cmds []*cli.Command) (i []string) {
 	for _, c := range cmds {
-		i = append(i, c.Names()...)
-		i = append(i, getInvalids(c.Subcommands)...)
+		i = append(append(append(i,
+
+			c.Names()...), c.Aliases...),
+
+			getInvalids(c.Subcommands)...)
 	}
 	return i
 }

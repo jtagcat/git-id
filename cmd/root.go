@@ -1,6 +1,11 @@
 package cmd
 
-// if
+// if identity provided is not unique, fallback to jc.gh (next domainpart)
+
+// no args: *list* [--all]
+//      all: by default filter out remotes not in current git repo (+ remotes)
+
+// has args: switch to ident
 
 //
 // import (

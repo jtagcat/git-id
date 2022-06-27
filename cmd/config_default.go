@@ -7,10 +7,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// git-id default
+// git-id config default
 var cmdConfigDefault = &cli.Command{
-	Name:      "set-default",
-	Usage:     "Set default ssh key for host, or clear it",
+	Name:      "default",
+	Usage:     "Set default ssh key for host (not remote), or clear it",
 	ArgsUsage: "git-id set-default <host> <IdentityFile>",
 	Flags: []cli.Flag{
 		flagConfig,

@@ -14,3 +14,7 @@ var cmdHow = &cli.Command{
 	// id: use that OR get from pwd / -C
 	// ...
 }
+
+// tip: add to .gitconfig:
+// [url "git@github.com:"]
+//        insteadOf = https://github.com/
