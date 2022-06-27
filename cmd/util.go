@@ -77,7 +77,7 @@ func gidOpenConfig(path string) *ssh_config.Config {
 		SubXKeys: []string{
 			"XDescription",
 			"XGitConfig",
-			"XParentSlug",
+			"XParent",
 		},
 		Indent: "  ",
 	}, path)
