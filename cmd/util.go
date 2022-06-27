@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/jtagcat/git-id/pkg/encoding/ssh_config"
+	spkg "github.com/jtagcat/git-id/pkg/encoding/ssh_config/pkg"
 	"github.com/urfave/cli/v2"
 )
 
@@ -143,6 +144,14 @@ func getInvalids(cmds []*cli.Command) (i []string) {
 	return i
 }
 
-func remoteSlug(fullSlug string) string {
-	return strings.TrimSuffix(strings.TrimPrefix(fullSlug, "*."), "."+globalTLD)
+// potentially buggy if used unwell
+func remoteSlug(fullSlug string) (s string, ok bool) {
+	if strings.Count(fullSlug, ".") < 2 {
+		return "", false
+	}
+
+	s = strings.TrimPrefix(fullSlug, "*.")
+	s, _, _ = spkg.CutLast(s, ".")
+
+	return s, true
 }

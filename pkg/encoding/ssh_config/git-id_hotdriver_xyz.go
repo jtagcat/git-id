@@ -1,6 +1,10 @@
 package ssh_config
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/jtagcat/git-id/pkg/encoding/ssh_config/pkg"
+)
 
 // WARN: made _only_ for git-id, may break
 func (c *Config) GID_PreappendRootComment(s string) {
@@ -75,7 +79,7 @@ func (c *Config) GID_RootObjectSetFirst(key string, values []string, firstValueI
 				valuesComparable = append(valuesComparable, v.Value)
 			}
 
-			if EqualFoldSlice(valuesComparable, values) {
+			if pkg.EqualFoldSlice(valuesComparable, values) {
 				root.Children = children
 				return
 			}
@@ -103,7 +107,7 @@ func (c *Config) GID_RootObjectRemoveFirst(key string, values []string) (ok bool
 					valuesComparable = append(valuesComparable, v.Value)
 				}
 
-				if EqualFoldSlice(valuesComparable, values) {
+				if pkg.EqualFoldSlice(valuesComparable, values) {
 					return i
 				}
 			}

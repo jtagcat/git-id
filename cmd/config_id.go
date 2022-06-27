@@ -18,7 +18,9 @@ func cmdRoot(ctx *cli.Context) error {
 	for _, tree := range trees {
 		fullSlug := tree.Values[0]
 		if strings.HasPrefix(fullSlug, "*.") {
-			hostMap[remoteSlug(fullSlug)] = tree.Children.Hostname
+			if rs, ok := remoteSlug(fullSlug); ok {
+				hostMap[rs] = tree.Children.Hostname
+			}
 		}
 	}
 
@@ -28,18 +30,10 @@ func cmdRoot(ctx *cli.Context) error {
 		for _, tree := range trees {
 			fullSlug := tree.Values[0]
 			if !strings.HasPrefix(fullSlug, "*.") {
-				// slug := strings.TrimSuffix()
+				// slug := strings.TrimSuffix() NO DO NOT USE TRIM
 			}
 		}
 		return nil
-	}
-	// TODO:
-	for _, tree := range trees {
-		fullSlug := tree.Values[0]
-		if strings.HasPrefix(fullSlug, "*.") {
-			slug := strings.TrimSuffix(strings.TrimPrefix(fullSlug, "*."), "."+globalTLD)
-			t.AddRow([]string{slug, tree.Children.XDescription})
-		}
 	}
 
 	fmt.Println(t.AsBuffer().String())

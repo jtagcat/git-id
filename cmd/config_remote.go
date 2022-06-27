@@ -34,12 +34,15 @@ var cmdRemote = &cli.Command{
 		t := asciitable.MakeTable([]string{"Remote", "Host", "Description"})
 		for _, tree := range trees {
 			fullSlug := tree.Values[0]
+
 			if strings.HasPrefix(fullSlug, "*.") {
-				t.AddRow([]string{
-					remoteSlug(fullSlug),
-					tree.Children.Hostname,
-					tree.Children.XDescription,
-				})
+				if rs, ok := remoteSlug(fullSlug); ok {
+					t.AddRow([]string{
+						rs,
+						tree.Children.Hostname,
+						tree.Children.XDescription,
+					})
+				}
 			}
 		}
 
@@ -130,12 +133,12 @@ var cmdRemoteRemove = &cli.Command{
 		recursive := ctx.Bool("recursive")
 
 		slug := args.First()
-		suffixSlug := fmt.Sprintf(".%s.%s", slug, globalTLD)
+		suffixSlug := fmt.Sprintf("%s.%s", slug, globalTLD)
 
 		c := gidOpenConfig(ctx.Path("config"))
 
 		// Host *.gh.git-id
-		i, trees := c.GID_RootObjects("Host", []string{suffixSlug}, true)
+		i, trees := c.GID_RootObjects("Host", []string{"." + suffixSlug}, true)
 		if i == 0 {
 			return fmt.Errorf("remote %s does not exist", slug)
 		}
@@ -143,7 +146,7 @@ var cmdRemoteRemove = &cli.Command{
 		// get/remove children identities
 		// Host jc.gh.git-id
 		for _, t := range trees {
-			if t.Values[0] != "*"+suffixSlug {
+			if t.Children.XParent == suffixSlug || t.Values[0] != "*"+suffixSlug {
 				if !recursive {
 					return fmt.Errorf("cannot delete remote %s: has attached identities (use --recursive)", slug)
 				}

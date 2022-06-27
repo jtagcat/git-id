@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/jtagcat/git-id/pkg/encoding/ssh_config/pkg"
 )
 
 type RawKeyword struct {
@@ -32,7 +34,7 @@ func decodeLine(data string) (RawKeyword, error) {
 		return RawKeyword{Comment: strings.TrimPrefix(trimmedLine, "#")}, nil
 	}
 
-	key, valuesblob, kvSeperator := CutAny(trimmedLine, " =")
+	key, valuesblob, kvSeperator := pkg.CutAny(trimmedLine, " =")
 
 	values, comment, err := DecodeValue(valuesblob)
 	if errors.Is(err, ErrInvalidQuoting) {

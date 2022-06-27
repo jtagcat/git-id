@@ -1,7 +1,4 @@
-package ssh_config
-
-// in the interest of not confusing the lang server,
-// we aren't splitting it to pkg (can't put it in parent pkg either)
+package pkg
 
 import (
 	"sort"
@@ -14,6 +11,14 @@ func CutAny(s, chars string) (before, after string, found string) {
 		return s[:i], s[i+1:], string(s[i])
 	}
 	return s, "", ""
+}
+
+// strings.Cut, but starting from last character, found is either empty or seperator
+func CutLast(s, sep string) (before, after string, found bool) {
+	if i := strings.LastIndex(s, sep); i >= 0 {
+		return s[:i], s[i+len(sep):], true
+	}
+	return s, "", false
 }
 
 func EqualFoldSlice(s []string, t []string) bool {
