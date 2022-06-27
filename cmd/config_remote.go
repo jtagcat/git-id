@@ -100,7 +100,7 @@ var cmdRemoteRemove = &cli.Command{
 	Usage:     "Remove a remote",
 	ArgsUsage: "git-id remote rm <remote slug> <-y, --yes> [-r, --recursive]",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{Name: "yes", Aliases: []string{"-y"}, Usage: "acknowledge potential breakage"},
+		&cli.BoolFlag{Name: "yes", Aliases: []string{"y"}, Usage: "acknowledge potential breakage"},
 		&cli.BoolFlag{Name: "recursive", Aliases: []string{"r"}, Usage: "remove remote and associated identities recursively"},
 		flagConfig,
 	},
@@ -134,7 +134,7 @@ var cmdRemoteRemove = &cli.Command{
 		// Host jc.gh.git-id
 		for _, t := range trees {
 			if t.Children.XParent == suffixSlug ||
-				t.Values[0] != "*"+suffixSlug { // for legacy / just in case there is no parent
+				t.Values[0] != "*."+suffixSlug { // for legacy / just in case there is no parent
 
 				if !recursive {
 					return fmt.Errorf("cannot delete remote %s: has attached identities (use --recursive)", slug)
@@ -147,7 +147,7 @@ var cmdRemoteRemove = &cli.Command{
 		}
 
 		// remove remote
-		if ok := c.GID_RootObjectRemoveFirst("Host", []string{"*" + suffixSlug}); !ok {
+		if ok := c.GID_RootObjectRemoveFirst("Host", []string{"*." + suffixSlug}); !ok {
 			return fmt.Errorf("race‽ (report bug?): remote doesn't exist, but it just did")
 		}
 
