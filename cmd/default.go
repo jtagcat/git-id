@@ -10,7 +10,7 @@ import (
 // upstream bug: https://github.com/urfave/cli/issues/1217
 var cmdDefaultUsageBug = "git-id default <host> <default IdentityFile>"
 
-// git id default
+// git-id default
 var cmdDefault = &cli.Command{
 	Name:  "default",
 	Usage: "Set host's default key",
@@ -47,7 +47,7 @@ var cmdDefault = &cli.Command{
 	},
 }
 
-// git id default clear
+// git-id default clear
 var cmdDefaultClear = &cli.Command{
 	Name:      "clear",
 	Usage:     "Clear previously set default key",

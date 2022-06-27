@@ -10,7 +10,7 @@ import (
 
 var flagConfig = &cli.PathFlag{Name: "config", Value: "~/.ssh/git-id.conf", Usage: "path to git-id config file"}
 
-// git id remote
+// git-id remote
 var cmdRemote = &cli.Command{
 	Name:  "remote",
 	Usage: "Manage remotes",
@@ -20,7 +20,7 @@ var cmdRemote = &cli.Command{
 	},
 }
 
-// git id remote add
+// git-id remote add
 var cmdRemoteAdd = &cli.Command{
 	Name:      "add",
 	Usage:     "Add a remote",
@@ -44,6 +44,10 @@ var cmdRemoteAdd = &cli.Command{
 		if len(slug) > 200 { // leave some for your userpart asw; not utf-8 len since it cancels out
 			return fmt.Errorf("please choose a shorter slug")
 		}
+		if in := inInvalids(slug); in {
+			return fmt.Errorf("slug would conflict with commands, please choose an another (shorter?)")
+		}
+
 		fullSlug := fmt.Sprintf("*.%s.%s", slug, flTLD)
 
 		host := args.Get(1) // don't validate
@@ -67,7 +71,7 @@ var cmdRemoteAdd = &cli.Command{
 	},
 }
 
-// git id remote rm
+// git-id remote rm
 var cmdRemoteRemove = &cli.Command{
 	Name:      "rm",
 	Usage:     "Remove a remote",

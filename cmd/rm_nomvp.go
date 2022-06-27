@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// git id rm
+// git-id rm
 var rmCmd = &cobra.Command{
 	Use:   "rm",
 	Short: "Remove an identity",
