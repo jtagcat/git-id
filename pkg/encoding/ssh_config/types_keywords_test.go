@@ -23,7 +23,7 @@ package ssh_config
 // 					}
 
 // 				}
-// 				ioutil.WriteFile(tc, []byte("Host *\n"+keyword+"="+testArgs), 0644)
+// 				os.WriteFile(tc, []byte("Host *\n"+keyword+"="+testArgs), 0644)
 // 				out, _ := exec.Command("ssh", "-T", "-F", tc, "invalid").CombinedOutput()
 // 				if testingValidConfigString != string(out) {
 // 					t.Fatalf("%q: min..max at %d failed: %v", keyword, ac, string(out))
@@ -38,7 +38,7 @@ package ssh_config
 // 					}
 // 					testArgs += validArg
 // 				}
-// 				ioutil.WriteFile(tc, []byte("Host *\n"+keyword+"="+testArgs), 0644)
+// 				os.WriteFile(tc, []byte("Host *\n"+keyword+"="+testArgs), 0644)
 // 				out, _ := exec.Command("ssh", "-T", "-F", tc, "invalid").CombinedOutput()
 // 				if testingValidConfigString == string(out) {
 // 					t.Fatalf("%q: min oob %d succeeded: %v", keyword, indexDef.minArgs, string(out))
@@ -50,7 +50,7 @@ package ssh_config
 // 				for i := indexDef.maxArg + 1; i < indexDef.maxArg+5; i++ {
 // 					testArgs += validArg + " "
 // 				}
-// 				ioutil.WriteFile(tc, []byte("Host *\n"+keyword+"="+testArgs), 0644)
+// 				os.WriteFile(tc, []byte("Host *\n"+keyword+"="+testArgs), 0644)
 // 				out, _ := exec.Command("ssh", "-T", "-F", tc, "invalid").CombinedOutput()
 // 				if testingValidConfigString == string(out) {
 // 					t.Fatalf("%q: max oob %q succeeded: %v", keyword, indexDef.maxArg, string(out))
