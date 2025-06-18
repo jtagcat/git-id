@@ -3,10 +3,10 @@ module github.com/jtagcat/git-id
 go 1.18
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/gogs/git-module v1.6.0
-	github.com/minio/pkg v1.1.24
-	github.com/stretchr/testify v1.7.1
+	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
+	github.com/gogs/git-module v1.8.4
+	github.com/minio/pkg v1.7.5
+	github.com/stretchr/testify v1.10.0
 	github.com/whilp/git-urls v1.0.0
 )
 
@@ -17,10 +17,10 @@ require (
 )
 
 require (
-	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
-	github.com/gravitational/teleport v3.2.17+incompatible
+	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
+	github.com/gravitational/teleport v4.3.10+incompatible
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
+	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 )
 
 require (
@@ -29,6 +29,6 @@ require (
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/urfave/cli/v2 v2.10.3
+	github.com/urfave/cli/v2 v2.27.7
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
